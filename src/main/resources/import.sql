@@ -1,0 +1,1 @@
+INSERT INTO client (first_name, last_name, birth_date, cpf, phone, email, password) VALUES ('Matheus', 'Valdevino', '1997-03-15', '121.478.222.11', '82991668033', 'matheusvaldevino1997@gmail.com', '123456');
