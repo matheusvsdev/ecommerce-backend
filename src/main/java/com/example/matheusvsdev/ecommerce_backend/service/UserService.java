@@ -1,5 +1,6 @@
 package com.example.matheusvsdev.ecommerce_backend.service;
 
+import com.example.matheusvsdev.ecommerce_backend.dto.RoleDTO;
 import com.example.matheusvsdev.ecommerce_backend.dto.UserDTO;
 import com.example.matheusvsdev.ecommerce_backend.entities.Role;
 import com.example.matheusvsdev.ecommerce_backend.entities.User;
@@ -7,10 +8,13 @@ import com.example.matheusvsdev.ecommerce_backend.projection.UserDetailsProjecti
 import com.example.matheusvsdev.ecommerce_backend.repository.RoleRepository;
 import com.example.matheusvsdev.ecommerce_backend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,32 +42,34 @@ public class UserService implements UserDetailsService {
         assigningDtoToEntities(user, userDTO);
 
         user.getRoles().clear();
-        Role role = roleRepository.findByAuthority("ROLE_CLIENT");
-        user.getRoles().add(role);
+
+        if (userDTO.getRoles() == null || userDTO.getRoles().isEmpty()) {
+            Role defaultRole = roleRepository.findByAuthority("ROLE_CLIENT");
+            user.getRoles().add(defaultRole);
+
+            String text = "Dados da conta\n\n" +
+                    "Nome: " + user.getFirstName() +
+                    "\n\nSobrenome: " + user.getLastName() +
+                    "\n\nCPF: " + user.getCpf() +
+                    "\n\nContato: " + user.getPhone() +
+                    "\n\nData de nascimento: " + user.getBirthDate() +
+                    "\n\nUsername: " + user.getUsername();
+
+            emailService.sendEmail(user.getEmail(), "Parabéns, sua conta foi criada com sucesso!", text);
+
+        } else {
+            for (RoleDTO roleDTO : userDTO.getRoles()) {
+                Role role = roleRepository.findByAuthority(roleDTO.getAuthority());
+                if (role != null) {
+                    user.getRoles().add(role);
+                }
+            }
+        }
 
         user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
         user = userRepository.save(user);
 
-        String text = "Dados da conta\n\n" +
-                "Nome: " + user.getFirstName() +
-                "\n\nSobrenome: " + user.getLastName() +
-                "\n\nCPF: " + user.getCpf() +
-                "\n\nContato: " + user.getPhone() +
-                "\n\nData de nascimento: " + user.getBirthDate() +
-                "\n\nUsername: " + user.getUsername();
-
-        emailService.sendEmail(user.getEmail(), "Parabéns, sua conta foi criada com sucesso!", text);
-
         return new UserDTO(user);
-    }
-
-    public void assigningDtoToEntities(User entity, UserDTO dto) {
-        entity.setFirstName(dto.getFirstName());
-        entity.setLastName(dto.getLastName());
-        entity.setBirthDate(dto.getBirthDate());
-        entity.setCpf(dto.getCpf());
-        entity.setPhone(dto.getPhone());
-        entity.setEmail(dto.getEmail());
     }
 
     @Override
@@ -78,6 +84,22 @@ public class UserService implements UserDetailsService {
         user.setEmail(result.get(0).getUsername());
         user.setPassword(result.get(0).getPassword());
 
-        return (UserDetails) user;
+        return user;
+    }
+
+    public void assigningDtoToEntities(User entity, UserDTO dto) {
+        entity.setFirstName(dto.getFirstName());
+        entity.setLastName(dto.getLastName());
+        entity.setBirthDate(dto.getBirthDate());
+        entity.setCpf(dto.getCpf());
+        entity.setPhone(dto.getPhone());
+        entity.setEmail(dto.getEmail());
+    }
+
+    protected User autenthicated() {
+        Authentication authenticator = SecurityContextHolder.getContext().getAuthentication();
+        Jwt jwt = (Jwt) authenticator.getPrincipal();
+        String username = jwt.getClaim("username");
+        return userRepository.findByEmail(username);
     }
 }

@@ -3,6 +3,8 @@ package com.example.matheusvsdev.ecommerce_backend.dto;
 import com.example.matheusvsdev.ecommerce_backend.entities.User;
 
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 public class UserDTO {
 
@@ -21,6 +23,8 @@ public class UserDTO {
     private String email;
 
     private String password;
+
+    Set<RoleDTO> roles = new HashSet<>();
 
     public UserDTO() {
     }
@@ -53,6 +57,7 @@ public class UserDTO {
         phone = entity.getPhone();
         email = entity.getEmail();
         password = entity.getPassword();
+        entity.getRoles().forEach(role -> this.roles.add(new RoleDTO(role)));
     }
 
     public Long getId() {
@@ -85,5 +90,9 @@ public class UserDTO {
 
     public String getPassword() {
         return password;
+    }
+
+    public Set<RoleDTO> getRoles() {
+        return roles;
     }
 }

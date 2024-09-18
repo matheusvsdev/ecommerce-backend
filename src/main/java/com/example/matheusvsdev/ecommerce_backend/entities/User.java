@@ -8,7 +8,7 @@ import java.time.LocalDate;
 import java.util.*;
 
 @Entity
-@Table(name = "client")
+@Table(name = "tb_user")
 public class User implements UserDetails {
 
     @Id
@@ -34,6 +34,9 @@ public class User implements UserDetails {
     joinColumns = @JoinColumn(name = "user_id"),
     inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles = new HashSet<>();
+
+    @OneToMany(mappedBy = "client")
+    private List<Order> orders = new ArrayList<>();
 
     public User() {
     }
@@ -115,6 +118,10 @@ public class User implements UserDetails {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public List<Order> getOrders() {
+        return orders;
     }
 
     public Set<Role> getRoles() {

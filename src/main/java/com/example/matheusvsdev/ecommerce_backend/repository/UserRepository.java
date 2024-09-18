@@ -14,11 +14,11 @@ public interface UserRepository extends JpaRepository<User, Long> {
     User findByEmail(String email);
 
     @Query(nativeQuery = true, value = """
-			SELECT client.email AS username, client.password, tb_role.id AS roleId, tb_role.authority
-			FROM client
-			INNER JOIN user_role ON client.id = user_role.user_id
+			SELECT tb_user.email AS username, tb_user.password, tb_role.id AS roleId, tb_role.authority
+			FROM tb_user
+			INNER JOIN user_role ON tb_user.id = user_role.user_id
 			INNER JOIN tb_role ON tb_role.id = user_role.role_id
-			WHERE client.email = :email
+			WHERE tb_user.email = :email
 		""")
     List<UserDetailsProjection> searchUserAndRolesByEmail(String email);
 }
