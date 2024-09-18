@@ -29,6 +29,9 @@ public class UserService implements UserDetailsService {
     @Autowired
     private RoleRepository roleRepository;
 
+    @Autowired
+    private EmailService emailService;
+
     @Transactional
     public UserDTO createUser(UserDTO userDTO) {
         User user = new User();
@@ -40,6 +43,16 @@ public class UserService implements UserDetailsService {
 
         user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
         user = userRepository.save(user);
+
+        String text = "Dados da conta\n\n" +
+                "Nome: " + user.getFirstName() +
+                "\n\nSobrenome: " + user.getLastName() +
+                "\n\nCPF: " + user.getCpf() +
+                "\n\nContato: " + user.getPhone() +
+                "\n\nData de nascimento: " + user.getBirthDate() +
+                "\n\nUsername: " + user.getUsername();
+
+        emailService.sendEmail(user.getEmail(), "Parabéns, sua conta foi criada com sucesso!", text);
 
         return new UserDTO(user);
     }
