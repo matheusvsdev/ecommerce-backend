@@ -75,8 +75,8 @@ public class Product {
         return quantity;
     }
 
-    public Integer addQuantity(Integer amount) {
-        return quantity += amount;
+    public void setQuantity(Integer quantity) {
+        this.quantity = quantity;
     }
 
     public Double getPrice() {
