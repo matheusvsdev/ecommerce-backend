@@ -47,15 +47,7 @@ public class UserService implements UserDetailsService {
             Role defaultRole = roleRepository.findByAuthority("ROLE_CLIENT");
             user.getRoles().add(defaultRole);
 
-            String text = "Dados da conta\n\n" +
-                    "Nome: " + user.getFirstName() +
-                    "\n\nSobrenome: " + user.getLastName() +
-                    "\n\nCPF: " + user.getCpf() +
-                    "\n\nContato: " + user.getPhone() +
-                    "\n\nData de nascimento: " + user.getBirthDate() +
-                    "\n\nUsername: " + user.getUsername();
-
-            emailService.sendEmail(user.getEmail(), "Parabéns, sua conta foi criada com sucesso!", text);
+            emailService.userCreationEmailBody(user);
 
         } else {
             for (RoleDTO roleDTO : userDTO.getRoles()) {

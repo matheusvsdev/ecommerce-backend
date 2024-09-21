@@ -1,11 +1,8 @@
 package com.example.matheusvsdev.ecommerce_backend.dto;
 
-import com.example.matheusvsdev.ecommerce_backend.entities.Order;
-import com.example.matheusvsdev.ecommerce_backend.entities.OrderItem;
-import com.example.matheusvsdev.ecommerce_backend.entities.OrderStatus;
-import com.example.matheusvsdev.ecommerce_backend.entities.PaymentMethod;
+import com.example.matheusvsdev.ecommerce_backend.entities.*;
 
-import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,33 +10,47 @@ public class OrderDTO {
 
     private Long id;
 
-    private Instant moment;
+    private LocalDateTime moment;
 
-    private OrderStatus status;
+    private Double orderedAmount;
 
-    private PaymentMethod payment;
+    private Double total;
 
     private ClientDTO client;
 
+    private PaymentDTO payment;
+
     private List<OrderItemDTO> items = new ArrayList<>();
 
-    public OrderDTO(Long id, Instant moment, OrderStatus status, PaymentMethod payment, ClientDTO client) {
+    private Long addressId;
+
+    private Double freightCost;
+
+    public OrderDTO(Long id, LocalDateTime moment, PaymentDTO payment, Double orderedAmount, Double total, ClientDTO client, Long addressId) {
         this.id = id;
         this.moment = moment;
-        this.status = status;
         this.payment = payment;
+        this.orderedAmount = orderedAmount;
+        this.total = total;
         this.client = client;
+        this.addressId = addressId;
     }
 
     public OrderDTO(Order entity) {
         id = entity.getId();
         moment = entity.getMoment();
-        status = entity.getStatus();
-        payment = entity.getPayment();
+        orderedAmount = entity.getOrderedAmount();
+        total = entity.getTotal();
+        addressId = entity.getAddress().getId();
         client = new ClientDTO(entity.getClient());
+        freightCost = entity.getFreightCost();
         for (OrderItem item : entity.getItems()) {
             OrderItemDTO itemDTO = new OrderItemDTO(item);
             items.add(itemDTO);
+        }
+        if (entity.getPayment() != null) {
+            payment = new PaymentDTO();
+            payment.setPaymentMethod(entity.getPayment().getPaymentMethod());
         }
     }
 
@@ -47,16 +58,20 @@ public class OrderDTO {
         return id;
     }
 
-    public Instant getMoment() {
+    public LocalDateTime getMoment() {
         return moment;
     }
 
-    public OrderStatus getStatus() {
-        return status;
+    public PaymentDTO getPayment() {
+        return payment;
     }
 
-    public PaymentMethod getPayment() {
-        return payment;
+    public Double getOrderedAmount() {
+        return orderedAmount;
+    }
+
+    public Double getTotal() {
+        return total;
     }
 
     public ClientDTO getClient() {
@@ -67,10 +82,11 @@ public class OrderDTO {
         return items;
     }
 
-    public Double getTotal() {
-        double sum = 0.0;
-        for (OrderItemDTO item : items) {
-            sum += item.getSubTotal();
-        } return sum;
+    public Long getAddressId() {
+        return addressId;
+    }
+
+    public Double getFreightCost() {
+        return freightCost;
     }
 }

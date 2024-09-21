@@ -55,4 +55,11 @@ public class OrderItem {
     public void setPrice(Double price) {
         this.price = price;
     }
+
+    @Override
+    public String toString() {
+        return getProduct().getName() +
+                "\nQuantidade = " + quantity +
+                "\nPreço = " + price + "\n";
+    }
 }

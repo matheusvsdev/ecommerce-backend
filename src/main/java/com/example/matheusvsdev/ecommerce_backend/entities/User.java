@@ -38,6 +38,9 @@ public class User implements UserDetails {
     @OneToMany(mappedBy = "client")
     private List<Order> orders = new ArrayList<>();
 
+    @OneToMany(mappedBy = "client")
+    private List<Address> address = new ArrayList<>();
+
     public User() {
     }
 
@@ -118,6 +121,10 @@ public class User implements UserDetails {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public List<Address> getAddress() {
+        return address;
     }
 
     public List<Order> getOrders() {

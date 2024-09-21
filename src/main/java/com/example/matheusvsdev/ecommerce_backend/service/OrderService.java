@@ -3,20 +3,20 @@ package com.example.matheusvsdev.ecommerce_backend.service;
 import com.example.matheusvsdev.ecommerce_backend.dto.OrderDTO;
 import com.example.matheusvsdev.ecommerce_backend.dto.OrderItemDTO;
 import com.example.matheusvsdev.ecommerce_backend.entities.*;
-import com.example.matheusvsdev.ecommerce_backend.repository.OrderItemRepository;
-import com.example.matheusvsdev.ecommerce_backend.repository.OrderRepository;
-import com.example.matheusvsdev.ecommerce_backend.repository.ProductRepository;
-import com.example.matheusvsdev.ecommerce_backend.repository.UserRepository;
+import com.example.matheusvsdev.ecommerce_backend.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import java.time.Instant;
+import java.time.LocalDateTime;
 
 @Service
 public class OrderService {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private EmailService emailService;
 
     @Autowired
     private OrderRepository orderRepository;
@@ -31,19 +31,35 @@ public class OrderService {
     private UserRepository userRepository;
 
     @Autowired
-    private InvoiceService invoiceService;
+    private AddressRepository addressRepository;
+
+    @Autowired
+    private AddressService addressService;
+
+    @Autowired
+    private AuthService authService;
+
+    @Autowired
+    private FreightService freightService;
 
     @Transactional
     public OrderDTO createOrder(OrderDTO dto) {
         Order order = new Order();
+        order.setMoment(LocalDateTime.now());
 
-        order.setMoment(Instant.now());
-        order.setPayment(dto.getPayment());
-        if (order.getPayment() == PaymentMethod.BOLETO) {
-            order.setStatus(OrderStatus.AGUARDANDO_PAGAMENTO);
-        }
+        Payment payment = new Payment();
+        payment.setPaymentMethod(dto.getPayment().getPaymentMethod());
+        payment.setPaymentStatus(PaymentStatus.CONFIRMANDO_PAGAMENTO);
 
-        order.setStatus(OrderStatus.CONFIRMANDO_PAGAMENTO);
+        order.setPayment(payment);
+
+        Address address = addressRepository.findById(dto.getAddressId()).orElseThrow(() -> new RuntimeException("Endereço não encontrado"));
+        authService.validateSelfOrAdmin(address.getClient().getId());
+        order.setAddress(address);
+
+        Double freightCost = freightService.calculateFreight(address.getState());
+        order.setFreightCost(freightCost);
+
         User user = userService.autenthicated();
         order.setClient(user);
 
@@ -56,25 +72,8 @@ public class OrderService {
         orderRepository.save(order);
         orderItemRepository.saveAll(order.getItems());
 
+        emailService.orderConfirmation(order);
+
         return new OrderDTO(order);
-    }
-
-    @Transactional
-    public void processPayment(Long orderId) {
-        Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new RuntimeException("Pedido não encontrado"));
-
-        if (order.getStatus() == OrderStatus.AGUARDANDO_PAGAMENTO || order.getStatus() == OrderStatus.CONFIRMANDO_PAGAMENTO) {
-            order.setStatus(OrderStatus.PAGAMENTO_APROVADO);
-            orderRepository.save(order);
-
-            try {
-                invoiceService.generateInvoice(new OrderDTO(order));
-            } catch (Exception e) {
-                throw new IllegalStateException("Erro ao gerar nota fiscal: " + e.getMessage());
-            }
-        } else {
-            throw new IllegalStateException("O pagamento não pode ser processado neste status");
-        }
     }
 }

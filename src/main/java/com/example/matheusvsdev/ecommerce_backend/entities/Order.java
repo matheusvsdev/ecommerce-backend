@@ -1,8 +1,7 @@
 package com.example.matheusvsdev.ecommerce_backend.entities;
 
 import jakarta.persistence.*;
-
-import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -15,11 +14,14 @@ public class Order {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Instant moment;
+    private LocalDateTime moment;
 
-    private OrderStatus status;
+    private Double orderedAmount;
 
-    private PaymentMethod payment;
+    private Double total;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    private Payment payment;
 
     @ManyToOne
     @JoinColumn(name = "client_id")
@@ -28,15 +30,24 @@ public class Order {
     @OneToMany(mappedBy = "id.order")
     private Set<OrderItem> items = new HashSet<>();
 
+    @ManyToOne
+    @JoinColumn(name = "address_id")
+    private Address address;
+
+    private Double freightCost;
+
     public Order() {
     }
 
-    public Order(Long id, Instant moment, OrderStatus status, PaymentMethod payment, User client) {
+    public Order(Long id, LocalDateTime moment, Double orderedAmount, Double total, Payment payment, User client, Address address, Double freightCost) {
         this.id = id;
         this.moment = moment;
-        this.status = status;
+        this.orderedAmount = orderedAmount;
+        this.total = total;
         this.payment = payment;
         this.client = client;
+        this.address = address;
+        this.freightCost = freightCost;
     }
 
     public Long getId() {
@@ -47,28 +58,49 @@ public class Order {
         this.id = id;
     }
 
-    public Instant getMoment() {
+    public LocalDateTime getMoment() {
         return moment;
     }
 
-    public void setMoment(Instant moment) {
+    public void setMoment(LocalDateTime moment) {
         this.moment = moment;
     }
 
-    public OrderStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(OrderStatus status) {
-        this.status = status;
-    }
-
-    public PaymentMethod getPayment() {
+    public Payment getPayment() {
         return payment;
     }
 
-    public void setPayment(PaymentMethod payment) {
+    public void setPayment(Payment payment) {
         this.payment = payment;
+    }
+
+    public Double getOrderedAmount() {
+        orderedAmount = items.stream()
+                .mapToDouble(item -> item.getQuantity() * item.getPrice())
+                .sum();
+
+        return orderedAmount;
+    }
+
+    public Double getTotal() {
+        if (orderedAmount > 800.0) {
+            freightCost = 0.0;
+        }
+        total = orderedAmount + freightCost;
+
+        return total;
+    }
+
+    public Double getFreightCost() {
+        return freightCost;
+    }
+
+    public void setFreightCost(Double freightCost) {
+        this.freightCost = freightCost;
+    }
+
+    public void setOrderedAmount(Double orderedAmount) {
+        this.orderedAmount = orderedAmount;
     }
 
     public User getClient() {
@@ -77,6 +109,14 @@ public class Order {
 
     public void setClient(User client) {
         this.client = client;
+    }
+
+    public Address getAddress() {
+        return address;
+    }
+
+    public void setAddress(Address address) {
+        this.address = address;
     }
 
     public Set<OrderItem> getItems() {

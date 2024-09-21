@@ -8,17 +8,21 @@ public class ClientDTO {
 
     private String name;
 
+    private String cpf;
+
     public ClientDTO() {
     }
 
-    public ClientDTO(Long id, String name) {
+    public ClientDTO(Long id, String name, String cpf) {
         this.id = id;
         this.name = name;
+        this.cpf = cpf;
     }
 
     public ClientDTO(User entity) {
         id = entity.getId();
         name = entity.getFirstName() + " " + entity.getLastName();
+        cpf = entity.getCpf();
     }
 
     public Long getId() {
@@ -27,5 +31,9 @@ public class ClientDTO {
 
     public String getName() {
         return name;
+    }
+
+    public String getCpf() {
+        return cpf;
     }
 }
