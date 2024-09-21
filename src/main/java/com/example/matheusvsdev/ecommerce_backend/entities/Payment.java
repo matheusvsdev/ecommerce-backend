@@ -12,8 +12,10 @@ public class Payment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Enumerated(value = EnumType.STRING)
     private PaymentMethod paymentMethod;
 
+    @Enumerated(value = EnumType.STRING)
     private PaymentStatus paymentStatus;
 
     private LocalDateTime paymentConfirmationDate;

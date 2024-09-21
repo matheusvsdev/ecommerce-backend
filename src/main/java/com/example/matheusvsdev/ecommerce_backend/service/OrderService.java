@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Service
 public class OrderService {
@@ -42,10 +43,14 @@ public class OrderService {
     @Autowired
     private FreightService freightService;
 
+    @Autowired
+    private DeliveryRepository deliveryRepository;
+
     @Transactional
     public OrderDTO createOrder(OrderDTO dto) {
         Order order = new Order();
         order.setMoment(LocalDateTime.now());
+        order.setOrderStatus(OrderStatus.CONFIRMADO);
 
         Payment payment = new Payment();
         payment.setPaymentMethod(dto.getPayment().getPaymentMethod());
@@ -70,6 +75,16 @@ public class OrderService {
         }
 
         orderRepository.save(order);
+
+        Delivery delivery = new Delivery();
+        delivery.setDeliveryStatus(DeliveryStatus.PREPARANDO);
+        delivery.setOrderUpdateDate(LocalDateTime.now());
+        delivery.setEstimatedDeliveryDate(LocalDateTime.now().plusDays(15));
+        delivery.setOrderId(order.getId());
+
+        order.setDelivery(delivery);
+
+        deliveryRepository.save(delivery);
         orderItemRepository.saveAll(order.getItems());
 
         emailService.orderConfirmation(order);

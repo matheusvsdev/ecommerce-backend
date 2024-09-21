@@ -23,9 +23,16 @@ public class Order {
     @OneToOne(cascade = CascadeType.ALL)
     private Payment payment;
 
+    @Enumerated(value = EnumType.STRING)
+    private OrderStatus orderStatus;
+
     @ManyToOne
     @JoinColumn(name = "client_id")
     private User client;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "delivery_id")
+    private Delivery delivery;
 
     @OneToMany(mappedBy = "id.order")
     private Set<OrderItem> items = new HashSet<>();
@@ -39,13 +46,15 @@ public class Order {
     public Order() {
     }
 
-    public Order(Long id, LocalDateTime moment, Double orderedAmount, Double total, Payment payment, User client, Address address, Double freightCost) {
+    public Order(Long id, LocalDateTime moment, Double orderedAmount, Double total, Payment payment, OrderStatus orderStatus, User client, Delivery delivery, Address address, Double freightCost) {
         this.id = id;
         this.moment = moment;
         this.orderedAmount = orderedAmount;
         this.total = total;
         this.payment = payment;
+        this.orderStatus = orderStatus;
         this.client = client;
+        this.delivery = delivery;
         this.address = address;
         this.freightCost = freightCost;
     }
@@ -72,6 +81,14 @@ public class Order {
 
     public void setPayment(Payment payment) {
         this.payment = payment;
+    }
+
+    public OrderStatus getOrderStatus() {
+        return orderStatus;
+    }
+
+    public void setOrderStatus(OrderStatus orderStatus) {
+        this.orderStatus = orderStatus;
     }
 
     public Double getOrderedAmount() {
@@ -109,6 +126,14 @@ public class Order {
 
     public void setClient(User client) {
         this.client = client;
+    }
+
+    public Delivery getDelivery() {
+        return delivery;
+    }
+
+    public void setDelivery(Delivery delivery) {
+        this.delivery = delivery;
     }
 
     public Address getAddress() {

@@ -18,6 +18,8 @@ public class OrderDTO {
 
     private ClientDTO client;
 
+    private Delivery delivery;
+
     private PaymentDTO payment;
 
     private List<OrderItemDTO> items = new ArrayList<>();
@@ -26,13 +28,14 @@ public class OrderDTO {
 
     private Double freightCost;
 
-    public OrderDTO(Long id, LocalDateTime moment, PaymentDTO payment, Double orderedAmount, Double total, ClientDTO client, Long addressId) {
+    public OrderDTO(Long id, LocalDateTime moment, PaymentDTO payment, Double orderedAmount, Double total, ClientDTO client, Delivery delivery, Long addressId) {
         this.id = id;
         this.moment = moment;
         this.payment = payment;
         this.orderedAmount = orderedAmount;
         this.total = total;
         this.client = client;
+        this.delivery = delivery;
         this.addressId = addressId;
     }
 
@@ -43,6 +46,7 @@ public class OrderDTO {
         total = entity.getTotal();
         addressId = entity.getAddress().getId();
         client = new ClientDTO(entity.getClient());
+        delivery = entity.getDelivery();
         freightCost = entity.getFreightCost();
         for (OrderItem item : entity.getItems()) {
             OrderItemDTO itemDTO = new OrderItemDTO(item);
@@ -76,6 +80,10 @@ public class OrderDTO {
 
     public ClientDTO getClient() {
         return client;
+    }
+
+    public Delivery getDelivery() {
+        return delivery;
     }
 
     public List<OrderItemDTO> getItems() {
