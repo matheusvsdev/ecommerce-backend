@@ -1,7 +1,6 @@
 package com.example.matheusvsdev.ecommerce_backend.entities;
 
 import jakarta.persistence.*;
-
 import java.time.LocalDateTime;
 
 @Entity
@@ -18,16 +17,31 @@ public class Payment {
     @Enumerated(value = EnumType.STRING)
     private PaymentStatus paymentStatus;
 
+    @OneToOne
+    @MapsId
+    private Order order;
+
     private LocalDateTime paymentConfirmationDate;
 
     public Payment() {
     }
 
-    public Payment(Long id, PaymentMethod paymentMethod, PaymentStatus paymentStatus, LocalDateTime paymentConfirmationDate) {
+    public Payment(Long id, PaymentMethod paymentMethod, PaymentStatus paymentStatus) {
         this.id = id;
         this.paymentMethod = paymentMethod;
         this.paymentStatus = paymentStatus;
-        this.paymentConfirmationDate = paymentConfirmationDate;
+    }
+
+    public Payment(Order order) {
+        this.order = order;
+    }
+
+    public Order getOrder() {
+        return order;
+    }
+
+    public void setOrder(Order order) {
+        this.order = order;
     }
 
     public Long getId() {

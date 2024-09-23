@@ -37,9 +37,17 @@ public class EmailService {
 
     public void paymentConfirmation(Order order) {
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MMMM/yyyy");
         String dataEntrega = order.getMoment().plusDays(15).format(formatter);
         String dataFormatada = order.getMoment().format(formatter);
+
+        String[] part1 = dataFormatada.split("/");
+        part1[1] = part1[1].substring(0, 1).toUpperCase() + part1[1].substring(1);
+        dataFormatada = String.join("/", part1);
+
+        String[] part2 = dataEntrega.split("/");
+        part2[1] = part2[1].substring(0, 1).toUpperCase() + part2[1].substring(1);
+        dataEntrega = String.join("/", part2);
 
         String text = "Olá," +
                 "\n\nAgradecemos por comprar na Ecommerce.com.br. Seu pagamento foi confirmado e seu pedido está sendo processado. Nós te avisaremos quando os itens forem enviados." +
@@ -69,17 +77,32 @@ public class EmailService {
 
     public void orderConfirmation(Order order) {
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MMMM/yyyy");
         String dataEntrega = order.getMoment().plusDays(15).format(formatter);
+        String dataFormatada = order.getMoment().format(formatter);
+
+        String[] part1 = dataFormatada.split("/");
+        part1[1] = part1[1].substring(0, 1).toUpperCase() + part1[1].substring(1);
+        dataFormatada = String.join("/", part1);
+
+        String[] part2 = dataEntrega.split("/");
+        part2[1] = part2[1].substring(0, 1).toUpperCase() + part2[1].substring(1);
+        dataEntrega = String.join("/", part2);
 
         String text = "Pedido do comerciante Ecommerce.com" +
+                "\n\nPedido nº " + order.getId() +
                 "\n\nComprado em: " + "Ecommerce.com" +
                 "\n\nEntrega prevista: " + dataEntrega +
                 "\n\nItens: " + order.getItems().toString() +
-                "\n\nValor: R$" + order.getOrderedAmount() +
+                "\n\nSeu pedido será enviado para:\n" + order.getClient().getFirstName() + "\n"
+                                                        + order.getAddress().getCity() + ",\n"
+                                                        + order.getAddress().getState() + "\n"
+                                                        + "Brasil" +
+                "\n\nResumo do pedido " + order.getId() +
+                "\n\nRealizado em " + dataFormatada +
                 "\n\nFrete: " + order.getFreightCost() +
-                "\n\nValor total do pedido: R$" + order.getTotal() +
-                "\n\nForma de pagamento: " + order.getPayment().getPaymentMethod();
+                "\n\nValor: R$" + order.getTotal() +
+                "\n\nPagamento feito com: " + order.getPayment().getPaymentMethod();
 
         sendEmail(order.getClient().getEmail(), "Seu pedido Ecommerce.com.br #" + order.getId() + " " + " de " + order.getItems().size() + " item(s)", text);
     }

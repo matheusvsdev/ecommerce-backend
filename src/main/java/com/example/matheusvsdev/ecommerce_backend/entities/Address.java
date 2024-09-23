@@ -2,6 +2,9 @@ package com.example.matheusvsdev.ecommerce_backend.entities;
 
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "tb_address")
 public class Address {
@@ -10,19 +13,12 @@ public class Address {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String neighborhood;
-
-    private String street;
-
-    private String number;
-
-    private String city;
-
     private State state;
 
-    private String cep;
+    private String neighborhood, street, number, city, cep, complement;
 
-    private String complement;
+    @OneToMany(mappedBy = "address")
+    private List<Order> orders = new ArrayList<>();
 
     @ManyToOne
     @JoinColumn(name = "client_id")
@@ -31,7 +27,7 @@ public class Address {
     public Address() {
     }
 
-    public Address(Long id, String neighborhood, String street, String number, String city, State state, String cep, String complement, User client) {
+    public Address(Long id, String neighborhood, String street, String number, String city, State state, String cep, String complement) {
         this.id = id;
         this.neighborhood = neighborhood;
         this.street = street;
@@ -40,7 +36,6 @@ public class Address {
         this.state = state;
         this.cep = cep;
         this.complement = complement;
-        this.client = client;
     }
 
     public Long getId() {
@@ -53,6 +48,10 @@ public class Address {
 
     public String getNeighborhood() {
         return neighborhood;
+    }
+
+    public List<Order> getOrders() {
+        return orders;
     }
 
     public void setNeighborhood(String neighborhood) {

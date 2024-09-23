@@ -1,5 +1,6 @@
 package com.example.matheusvsdev.ecommerce_backend.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
@@ -16,7 +17,9 @@ public class Delivery {
 
     private LocalDateTime orderUpdateDate, estimatedDeliveryDate;
 
-    private Long orderId;
+    @OneToOne(mappedBy = "delivery")
+    @JsonIgnore
+    private Order order;
 
     public Delivery() {
     }
@@ -24,13 +27,11 @@ public class Delivery {
     public Delivery(Long id,
                     DeliveryStatus deliveryStatus,
                     LocalDateTime orderUpdateDate,
-                    LocalDateTime estimatedDeliveryDate,
-                    Long orderId) {
+                    LocalDateTime estimatedDeliveryDate) {
         this.id = id;
         this.deliveryStatus = deliveryStatus;
         this.orderUpdateDate = orderUpdateDate;
         this.estimatedDeliveryDate = estimatedDeliveryDate;
-        this.orderId = orderId;
     }
 
     public Long getId() {
@@ -65,11 +66,11 @@ public class Delivery {
         this.estimatedDeliveryDate = estimatedDeliveryDate;
     }
 
-    public Long getOrderId() {
-        return orderId;
+    public Order getOrder() {
+        return order;
     }
 
-    public void setOrderId(Long orderId) {
-        this.orderId = orderId;
+    public void setOrder(Order order) {
+        this.order = order;
     }
 }

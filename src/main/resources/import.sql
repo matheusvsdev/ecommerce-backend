@@ -5,7 +5,7 @@ INSERT INTO tb_address (cep, state, city, neighborhood, street, number, compleme
 INSERT INTO tb_role (authority) VALUES ('ROLE_CLIENT');
 INSERT INTO tb_role (authority) VALUES ('ROLE_ADMIN');
 
-INSERT INTO user_role (user_id, role_id) VALUES (1, 1);
+INSERT INTO user_role (user_id, role_id) VALUES (1, 2);
 
 INSERT INTO categories (name) VALUES ('Livros');
 INSERT INTO categories (name) VALUES ('Games e Consoles');

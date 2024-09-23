@@ -49,8 +49,4 @@ public class OrderItemDTO {
     public String getImg() {
         return img;
     }
-
-    public Double getSubTotal() {
-        return price * quantity;
-    }
 }

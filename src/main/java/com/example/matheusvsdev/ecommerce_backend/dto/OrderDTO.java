@@ -1,100 +1,107 @@
 package com.example.matheusvsdev.ecommerce_backend.dto;
 
 import com.example.matheusvsdev.ecommerce_backend.entities.*;
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 public class OrderDTO {
 
-    private Long id;
+    private Long orderId;
 
     private LocalDateTime moment;
 
-    private Double orderedAmount;
-
-    private Double total;
-
-    private ClientDTO client;
-
-    private Delivery delivery;
-
-    private PaymentDTO payment;
+    private OrderStatus statusPedido;
 
     private List<OrderItemDTO> items = new ArrayList<>();
 
-    private Long addressId;
+    private PaymentDTO pagamento;
 
-    private Double freightCost;
+    private Long enderecoId;
 
-    public OrderDTO(Long id, LocalDateTime moment, PaymentDTO payment, Double orderedAmount, Double total, ClientDTO client, Delivery delivery, Long addressId) {
-        this.id = id;
+    private Delivery rastreio;
+
+    private Double frete;
+
+    private Double valorItems;
+
+    private Double total;
+
+    private String cliente;
+
+    public OrderDTO(Long orderId, LocalDateTime moment, OrderStatus statusPedido, PaymentDTO pagamento, Long enderecoId, Delivery rastreio, Double frete, Double valorItems, Double total, String cliente) {
+        this.orderId = orderId;
         this.moment = moment;
-        this.payment = payment;
-        this.orderedAmount = orderedAmount;
+        this.statusPedido = statusPedido;
+        this.pagamento = pagamento;
+        this.enderecoId = enderecoId;
+        this.rastreio = rastreio;
+        this.frete = frete;
+        this.valorItems = valorItems;
         this.total = total;
-        this.client = client;
-        this.delivery = delivery;
-        this.addressId = addressId;
+        this.cliente = cliente;
     }
 
     public OrderDTO(Order entity) {
-        id = entity.getId();
+        orderId = entity.getId();
+        cliente = entity.getClient().getFirstName() + " " + entity.getClient().getLastName();
         moment = entity.getMoment();
-        orderedAmount = entity.getOrderedAmount();
+        statusPedido = entity.getOrderStatus();
+        pagamento = new PaymentDTO(entity.getPayment().getPaymentMethod());
+        enderecoId = entity.getAddress().getId();
+        rastreio = entity.getDelivery();
+        frete = entity.getFreightCost();
+        valorItems = entity.getOrderedAmount();
         total = entity.getTotal();
-        addressId = entity.getAddress().getId();
-        client = new ClientDTO(entity.getClient());
-        delivery = entity.getDelivery();
-        freightCost = entity.getFreightCost();
+
         for (OrderItem item : entity.getItems()) {
             OrderItemDTO itemDTO = new OrderItemDTO(item);
             items.add(itemDTO);
         }
-        if (entity.getPayment() != null) {
-            payment = new PaymentDTO();
-            payment.setPaymentMethod(entity.getPayment().getPaymentMethod());
-        }
     }
 
-    public Long getId() {
-        return id;
+    public Long getOrderId() {
+        return orderId;
     }
 
     public LocalDateTime getMoment() {
         return moment;
     }
 
-    public PaymentDTO getPayment() {
-        return payment;
-    }
-
-    public Double getOrderedAmount() {
-        return orderedAmount;
-    }
-
-    public Double getTotal() {
-        return total;
-    }
-
-    public ClientDTO getClient() {
-        return client;
-    }
-
-    public Delivery getDelivery() {
-        return delivery;
+    public OrderStatus getStatusPedido() {
+        return statusPedido;
     }
 
     public List<OrderItemDTO> getItems() {
         return items;
     }
 
-    public Long getAddressId() {
-        return addressId;
+    public PaymentDTO getPagamento() {
+        return pagamento;
     }
 
-    public Double getFreightCost() {
-        return freightCost;
+
+    public Long getEnderecoId() {
+        return enderecoId;
+    }
+
+    public Delivery getRastreio() {
+        return rastreio;
+    }
+
+    public Double getFrete() {
+        return frete;
+    }
+
+    public Double getValorItems() {
+        return valorItems;
+    }
+
+    public Double getTotal() {
+        return total;
+    }
+
+    public String getCliente() {
+        return cliente;
     }
 }

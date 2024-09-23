@@ -8,18 +8,13 @@ import com.example.matheusvsdev.ecommerce_backend.projection.UserDetailsProjecti
 import com.example.matheusvsdev.ecommerce_backend.repository.RoleRepository;
 import com.example.matheusvsdev.ecommerce_backend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.util.List;
-
 
 @Service
 public class UserService implements UserDetailsService {
@@ -86,12 +81,5 @@ public class UserService implements UserDetailsService {
         entity.setCpf(dto.getCpf());
         entity.setPhone(dto.getPhone());
         entity.setEmail(dto.getEmail());
-    }
-
-    protected User autenthicated() {
-        Authentication authenticator = SecurityContextHolder.getContext().getAuthentication();
-        Jwt jwt = (Jwt) authenticator.getPrincipal();
-        String username = jwt.getClaim("username");
-        return userRepository.findByEmail(username);
     }
 }

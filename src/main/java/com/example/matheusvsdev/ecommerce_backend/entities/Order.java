@@ -1,5 +1,6 @@
 package com.example.matheusvsdev.ecommerce_backend.entities;
 
+import com.example.matheusvsdev.ecommerce_backend.dto.OrderItemDTO;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -20,7 +21,7 @@ public class Order {
 
     private Double total;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(mappedBy = "order", cascade = CascadeType.ALL)
     private Payment payment;
 
     @Enumerated(value = EnumType.STRING)
@@ -41,42 +42,73 @@ public class Order {
     @JoinColumn(name = "address_id")
     private Address address;
 
-    private Double freightCost;
+    private Double freightCost = 0.0;
 
     public Order() {
     }
 
-    public Order(Long id, LocalDateTime moment, Double orderedAmount, Double total, Payment payment, OrderStatus orderStatus, User client, Delivery delivery, Address address, Double freightCost) {
+    public Order(Long id, LocalDateTime moment, OrderStatus orderStatus, User client, Delivery delivery, Address address) {
         this.id = id;
         this.moment = moment;
-        this.orderedAmount = orderedAmount;
-        this.total = total;
-        this.payment = payment;
-        this.orderStatus = orderStatus;
         this.client = client;
-        this.delivery = delivery;
         this.address = address;
-        this.freightCost = freightCost;
+        this.delivery = delivery;
+        this.orderStatus = orderStatus;
+    }
+
+
+    public Double getOrderedAmount() {
+        double sum = 0.0;
+        for (OrderItem itemDTO : items) {
+            sum += itemDTO.getSubTotal();
+        }
+        orderedAmount = sum;
+        return orderedAmount;
+    }
+
+    public Double getTotal() {
+        if (getOrderedAmount() > 800.0) {
+            freightCost = 0.0;
+        }
+        total = getOrderedAmount() + freightCost;
+
+        return total;
     }
 
     public Long getId() {
         return id;
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
     public LocalDateTime getMoment() {
         return moment;
     }
 
-    public void setMoment(LocalDateTime moment) {
-        this.moment = moment;
+    public User getClient() {
+        return client;
+    }
+
+    public Delivery getDelivery() {
+        return delivery;
+    }
+
+    public Address getAddress() {
+        return address;
+    }
+
+    public Set<OrderItem> getItems() {
+        return items;
     }
 
     public Payment getPayment() {
         return payment;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public void setMoment(LocalDateTime moment) {
+        this.moment = moment;
     }
 
     public void setPayment(Payment payment) {
@@ -87,25 +119,13 @@ public class Order {
         return orderStatus;
     }
 
+    public Order(Payment payment) {
+        this.payment = payment;
+        payment.setOrder(this);
+    }
+
     public void setOrderStatus(OrderStatus orderStatus) {
         this.orderStatus = orderStatus;
-    }
-
-    public Double getOrderedAmount() {
-        orderedAmount = items.stream()
-                .mapToDouble(item -> item.getQuantity() * item.getPrice())
-                .sum();
-
-        return orderedAmount;
-    }
-
-    public Double getTotal() {
-        if (orderedAmount > 800.0) {
-            freightCost = 0.0;
-        }
-        total = orderedAmount + freightCost;
-
-        return total;
     }
 
     public Double getFreightCost() {
@@ -116,36 +136,16 @@ public class Order {
         this.freightCost = freightCost;
     }
 
-    public void setOrderedAmount(Double orderedAmount) {
-        this.orderedAmount = orderedAmount;
-    }
-
-    public User getClient() {
-        return client;
-    }
-
     public void setClient(User client) {
         this.client = client;
-    }
-
-    public Delivery getDelivery() {
-        return delivery;
     }
 
     public void setDelivery(Delivery delivery) {
         this.delivery = delivery;
     }
 
-    public Address getAddress() {
-        return address;
-    }
-
     public void setAddress(Address address) {
         this.address = address;
-    }
-
-    public Set<OrderItem> getItems() {
-        return items;
     }
 
     public List<Product> getProducts() {

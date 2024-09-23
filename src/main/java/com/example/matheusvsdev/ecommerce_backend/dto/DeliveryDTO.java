@@ -34,7 +34,6 @@ public class DeliveryDTO {
         deliveryStatus = entity.getDeliveryStatus();
         orderUpdateDate = entity.getOrderUpdateDate();
         estimatedDeliveryDate = entity.getEstimatedDeliveryDate();
-        orderId = entity.getOrderId();
     }
 
     public Long getId() {
@@ -51,9 +50,5 @@ public class DeliveryDTO {
 
     public LocalDateTime getOrderUpdateDate() {
         return orderUpdateDate;
-    }
-
-    public Long getOrderId() {
-        return orderId;
     }
 }

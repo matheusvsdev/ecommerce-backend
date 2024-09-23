@@ -7,19 +7,9 @@ public class AddressDTO {
 
     private Long id;
 
-    private String neighborhood;
-
-    private String street;
-
-    private String number;
-
-    private String city;
-
     private State state;
 
-    private String cep;
-
-    private String complement;
+    private String neighborhood, street, number, city, cep, complement;
 
     public AddressDTO() {
     }

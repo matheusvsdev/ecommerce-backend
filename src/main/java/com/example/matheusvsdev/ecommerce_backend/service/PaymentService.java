@@ -1,11 +1,11 @@
 package com.example.matheusvsdev.ecommerce_backend.service;
 
+import com.example.matheusvsdev.ecommerce_backend.dto.OrderDTO;
 import com.example.matheusvsdev.ecommerce_backend.entities.*;
 import com.example.matheusvsdev.ecommerce_backend.repository.OrderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.time.LocalDateTime;
 
 @Service
