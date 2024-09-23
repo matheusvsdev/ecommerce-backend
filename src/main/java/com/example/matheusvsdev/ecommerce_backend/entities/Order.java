@@ -1,6 +1,5 @@
 package com.example.matheusvsdev.ecommerce_backend.entities;
 
-import com.example.matheusvsdev.ecommerce_backend.dto.OrderItemDTO;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -28,8 +27,8 @@ public class Order {
     private OrderStatus orderStatus;
 
     @ManyToOne
-    @JoinColumn(name = "client_id")
-    private User client;
+    @JoinColumn(name = "user_id")
+    private User user;
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "delivery_id")
@@ -47,10 +46,10 @@ public class Order {
     public Order() {
     }
 
-    public Order(Long id, LocalDateTime moment, OrderStatus orderStatus, User client, Delivery delivery, Address address) {
+    public Order(Long id, LocalDateTime moment, OrderStatus orderStatus, User user, Delivery delivery, Address address) {
         this.id = id;
         this.moment = moment;
-        this.client = client;
+        this.user = user;
         this.address = address;
         this.delivery = delivery;
         this.orderStatus = orderStatus;
@@ -75,6 +74,10 @@ public class Order {
         return total;
     }
 
+    public void setTotal(Double total) {
+        this.total = total;
+    }
+
     public Long getId() {
         return id;
     }
@@ -83,8 +86,8 @@ public class Order {
         return moment;
     }
 
-    public User getClient() {
-        return client;
+    public User getUser() {
+        return user;
     }
 
     public Delivery getDelivery() {
@@ -97,6 +100,10 @@ public class Order {
 
     public Set<OrderItem> getItems() {
         return items;
+    }
+
+    public void addItem(OrderItem item) {
+        items.add(item);
     }
 
     public Payment getPayment() {
@@ -136,8 +143,8 @@ public class Order {
         this.freightCost = freightCost;
     }
 
-    public void setClient(User client) {
-        this.client = client;
+    public void setUser(User user) {
+        this.user = user;
     }
 
     public void setDelivery(Delivery delivery) {

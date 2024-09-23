@@ -52,6 +52,15 @@ public class OrderService {
     @Autowired
     private PaymentService paymentService;
 
+    @Autowired
+    private CartService cartService;
+
+    @Autowired
+    private CartRepository cartRepository;
+
+    @Autowired
+    private CartItemRepository cartItemRepository;
+
     @Transactional
     public OrderResponseDTO createOrder(OrderDTO dto) {
 
@@ -63,7 +72,7 @@ public class OrderService {
         addOrderItems(order, dto.getItems());
 
         User user = authService.autenthicated();
-        order.setClient(user);
+        order.setUser(user);
 
         Address address = addressService.findById(dto.getEnderecoId());
         authService.validateSelfOrAdmin(address.getClient().getId());
@@ -92,11 +101,64 @@ public class OrderService {
         return new OrderResponseDTO(order);
     }
 
+    @Transactional
+    public OrderResponseDTO placeOrderFromCart(OrderDTO orderDTO) {
+
+        Cart cart = cartService.findCartByAuthenticatedUser();
+        cartService.validateCart(cart);
+
+        Order order = new Order();
+        order.setMoment(LocalDateTime.now());
+        order.setOrderStatus(OrderStatus.CONFIRMADO);
+
+        for (CartItem cartItem : cart.getItems()) {
+            OrderItem orderItem = new OrderItem(order, cartItem.getProduct(), cartItem.getQuantity(), cartItem.getPrice());
+            order.addItem(orderItem);
+        }
+
+        User user = authService.autenthicated();
+        order.setUser(user);
+
+        Address address = addressService.findById(orderDTO.getEnderecoId());
+        authService.validateSelfOrAdmin(address.getClient().getId());
+
+        order.setAddress(address);
+        address.getOrders().add(order);
+
+        Payment payment = createPayment(orderDTO.getPagamento());
+        order.setPayment(payment);
+        payment.setOrder(order);
+
+        order.setTotal(cart.getTotal());
+
+        orderRepository.save(order);
+
+        Double freightCost = freightService.calculateFreight(address.getState());
+        order.setFreightCost(freightCost);
+
+        Delivery delivery = createDelivery();
+        order.setDelivery(delivery);
+        delivery.setOrder(order);
+
+        for (CartItem cartItem : cart.getItems()) {
+            cartItemRepository.delete(cartItem);
+        }
+
+        cart.getItems().clear();
+        cart.setTotal(0.0);
+        cartService.updateCart(cart);
+
+        deliveryRepository.save(delivery);
+        orderItemRepository.saveAll(order.getItems());
+
+        return new OrderResponseDTO(order);
+    }
+
     @Transactional(readOnly = true)
     public OrderDTO findById(Long id) {
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Pedido não encontrado"));
-        authService.validateSelfOrAdmin(order.getClient().getId());
+        authService.validateSelfOrAdmin(order.getUser().getId());
         return new OrderDTO(order);
     }
 
@@ -109,7 +171,7 @@ public class OrderService {
         if (user.hasRole("ROLE_ADMIN")) {
             orders = orderRepository.findAll();
         } else {
-            orders = orderRepository.findByClientId(user.getId());
+            orders = orderRepository.findByUserId(user.getId());
         }
         return orders.stream().map(x -> new OrderDTO(x)).collect(Collectors.toList());
     }

@@ -9,7 +9,7 @@ public class OrderResponseDTO {
     private String orderStatus;
     private LocalDateTime orderMoment;
     private LocalDateTime deliveryDate;
-    private String clientName;
+    private String userName;
     private String state;
     private String city;
     private Double freightCost;
@@ -21,7 +21,7 @@ public class OrderResponseDTO {
         this.orderStatus = order.getOrderStatus().name();
         this.orderMoment = order.getMoment();
         this.deliveryDate = order.getDelivery().getEstimatedDeliveryDate();
-        this.clientName = order.getClient().getFirstName() + " " + order.getClient().getLastName();
+        this.userName = order.getUser().getFirstName() + " " + order.getUser().getLastName();
         this.state = order.getAddress().getState().name();
         this.city = order.getAddress().getCity();
         this.freightCost = order.getFreightCost();
@@ -45,8 +45,8 @@ public class OrderResponseDTO {
         return deliveryDate;
     }
 
-    public String getClientName() {
-        return clientName;
+    public String getUserName() {
+        return userName;
     }
 
     public String getState() {

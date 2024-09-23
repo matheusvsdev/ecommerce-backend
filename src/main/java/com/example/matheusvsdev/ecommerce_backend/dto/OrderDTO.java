@@ -27,9 +27,9 @@ public class OrderDTO {
 
     private Double total;
 
-    private String cliente;
+    private String user;
 
-    public OrderDTO(Long orderId, LocalDateTime moment, OrderStatus statusPedido, PaymentDTO pagamento, Long enderecoId, Delivery rastreio, Double frete, Double valorItems, Double total, String cliente) {
+    public OrderDTO(Long orderId, LocalDateTime moment, OrderStatus statusPedido, PaymentDTO pagamento, Long enderecoId, Delivery rastreio, Double frete, Double valorItems, Double total, String user) {
         this.orderId = orderId;
         this.moment = moment;
         this.statusPedido = statusPedido;
@@ -39,12 +39,12 @@ public class OrderDTO {
         this.frete = frete;
         this.valorItems = valorItems;
         this.total = total;
-        this.cliente = cliente;
+        this.user = user;
     }
 
     public OrderDTO(Order entity) {
         orderId = entity.getId();
-        cliente = entity.getClient().getFirstName() + " " + entity.getClient().getLastName();
+        user = entity.getUser().getFirstName() + " " + entity.getUser().getLastName();
         moment = entity.getMoment();
         statusPedido = entity.getOrderStatus();
         pagamento = new PaymentDTO(entity.getPayment().getPaymentMethod());
@@ -101,7 +101,7 @@ public class OrderDTO {
         return total;
     }
 
-    public String getCliente() {
-        return cliente;
+    public String getUser() {
+        return user;
     }
 }

@@ -29,13 +29,16 @@ public class User implements UserDetails {
 
     private String password;
 
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    private Cart cart;
+
     @ManyToMany
     @JoinTable(name = "user_role",
     joinColumns = @JoinColumn(name = "user_id"),
     inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles = new HashSet<>();
 
-    @OneToMany(mappedBy = "client")
+    @OneToMany(mappedBy = "user")
     private List<Order> orders = new ArrayList<>();
 
     @OneToMany(mappedBy = "client")
@@ -122,6 +125,17 @@ public class User implements UserDetails {
     public void setPassword(String password) {
         this.password = password;
     }
+
+    public Cart getCart() {
+        return cart;
+    }
+
+    public void setCart(Cart cart) {
+        this.cart = cart;
+        cart.setUser(this);
+    }
+
+
 
     public List<Address> getAddress() {
         return address;

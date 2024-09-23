@@ -21,6 +21,12 @@ public class OrderController {
     @Autowired
     private PaymentService paymentService;
 
+    @PostMapping("/checkout")
+    public ResponseEntity<OrderResponseDTO> checkout(@RequestBody OrderDTO dto) {
+        OrderResponseDTO orderResponse = orderService.placeOrderFromCart(dto);
+        return ResponseEntity.ok(orderResponse);
+    }
+
     @PostMapping
     public ResponseEntity<OrderResponseDTO> createOrder(@RequestBody OrderDTO dto) {
         OrderResponseDTO orderResponseDTO = orderService.createOrder(dto);

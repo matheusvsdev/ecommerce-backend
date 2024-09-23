@@ -52,14 +52,14 @@ public class EmailService {
         String text = "Olá," +
                 "\n\nAgradecemos por comprar na Ecommerce.com.br. Seu pagamento foi confirmado e seu pedido está sendo processado. Nós te avisaremos quando os itens forem enviados." +
                 "\n\nSua entrega está prevista para: " + dataEntrega +
-                "\n\nSeu pedido será enviado para: " + order.getClient().getFirstName() + "\n" + order.getAddress().toString() +
+                "\n\nSeu pedido será enviado para: " + order.getUser().getFirstName() + "\n" + order.getAddress().toString() +
                 "\n\nResumo do pedido" +
                 "\n\nPedido de número " + order.getId() +
                 "\nRealizado em " + dataFormatada +
                 "\n\nTotal do pedido: R$" + order.getTotal() +
                 "\nForma de pagamento: " + order.getPayment().getPaymentMethod();
 
-        sendEmail(order.getClient().getEmail(), "Pagamento confirmado para o pedido Ecommerce.com.br\n#" + order.getId(), text);
+        sendEmail(order.getUser().getEmail(), "Pagamento confirmado para o pedido Ecommerce.com.br\n#" + order.getId(), text);
     }
 
     public void userCreationEmailBody(User user) {
@@ -94,7 +94,7 @@ public class EmailService {
                 "\n\nComprado em: " + "Ecommerce.com" +
                 "\n\nEntrega prevista: " + dataEntrega +
                 "\n\nItens: " + order.getItems().toString() +
-                "\n\nSeu pedido será enviado para:\n" + order.getClient().getFirstName() + "\n"
+                "\n\nSeu pedido será enviado para:\n" + order.getUser().getFirstName() + "\n"
                                                         + order.getAddress().getCity() + ",\n"
                                                         + order.getAddress().getState() + "\n"
                                                         + "Brasil" +
@@ -104,6 +104,6 @@ public class EmailService {
                 "\n\nValor: R$" + order.getTotal() +
                 "\n\nPagamento feito com: " + order.getPayment().getPaymentMethod();
 
-        sendEmail(order.getClient().getEmail(), "Seu pedido Ecommerce.com.br #" + order.getId() + " " + " de " + order.getItems().size() + " item(s)", text);
+        sendEmail(order.getUser().getEmail(), "Seu pedido Ecommerce.com.br #" + order.getId() + " " + " de " + order.getItems().size() + " item(s)", text);
     }
 }

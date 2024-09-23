@@ -1,6 +1,8 @@
 package com.example.matheusvsdev.ecommerce_backend.resource;
 
 import com.example.matheusvsdev.ecommerce_backend.dto.AddressDTO;
+import com.example.matheusvsdev.ecommerce_backend.dto.CartDTO;
+import com.example.matheusvsdev.ecommerce_backend.dto.OrderDTO;
 import com.example.matheusvsdev.ecommerce_backend.service.AddressService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -30,12 +32,9 @@ public class AddressController {
         return ResponseEntity.created(uri).body(addressDTO);
     }
 
-    @GetMapping("/users/{clientId}")
-    public ResponseEntity<List<AddressDTO>> getAddressesByClientId(@PathVariable Long clientId) {
-        List<AddressDTO> addresses = addressService.findByClientId(clientId)
-                .stream()
-                .map(AddressDTO::new) // Convertendo para DTO
-                .collect(Collectors.toList());
-        return ResponseEntity.ok(addresses);
+    @GetMapping
+    public ResponseEntity<List<AddressDTO>> findAll() {
+        List<AddressDTO> cartList = addressService.findAll();
+        return ResponseEntity.ok(cartList);
     }
 }
