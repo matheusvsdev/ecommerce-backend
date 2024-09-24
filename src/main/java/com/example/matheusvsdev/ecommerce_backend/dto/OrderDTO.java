@@ -13,7 +13,7 @@ public class OrderDTO {
 
     private OrderStatus statusPedido;
 
-    private List<OrderItemDTO> items = new ArrayList<>();
+    private List<OrderItemsDTO> items = new ArrayList<>();
 
     private PaymentDTO pagamento;
 
@@ -21,22 +21,19 @@ public class OrderDTO {
 
     private Delivery rastreio;
 
-    private Double frete;
-
     private Double valorItems;
 
     private Double total;
 
     private String user;
 
-    public OrderDTO(Long orderId, LocalDateTime moment, OrderStatus statusPedido, PaymentDTO pagamento, Long enderecoId, Delivery rastreio, Double frete, Double valorItems, Double total, String user) {
+    public OrderDTO(Long orderId, LocalDateTime moment, OrderStatus statusPedido, PaymentDTO pagamento, Long enderecoId, Delivery rastreio, Double valorItems, Double total, String user) {
         this.orderId = orderId;
         this.moment = moment;
         this.statusPedido = statusPedido;
         this.pagamento = pagamento;
         this.enderecoId = enderecoId;
         this.rastreio = rastreio;
-        this.frete = frete;
         this.valorItems = valorItems;
         this.total = total;
         this.user = user;
@@ -50,12 +47,11 @@ public class OrderDTO {
         pagamento = new PaymentDTO(entity.getPayment().getPaymentMethod());
         enderecoId = entity.getAddress().getId();
         rastreio = entity.getDelivery();
-        frete = entity.getFreightCost();
         valorItems = entity.getOrderedAmount();
         total = entity.getTotal();
 
         for (OrderItem item : entity.getItems()) {
-            OrderItemDTO itemDTO = new OrderItemDTO(item);
+            OrderItemsDTO itemDTO = new OrderItemsDTO(item);
             items.add(itemDTO);
         }
     }
@@ -72,7 +68,7 @@ public class OrderDTO {
         return statusPedido;
     }
 
-    public List<OrderItemDTO> getItems() {
+    public List<OrderItemsDTO> getItems() {
         return items;
     }
 
@@ -87,10 +83,6 @@ public class OrderDTO {
 
     public Delivery getRastreio() {
         return rastreio;
-    }
-
-    public Double getFrete() {
-        return frete;
     }
 
     public Double getValorItems() {

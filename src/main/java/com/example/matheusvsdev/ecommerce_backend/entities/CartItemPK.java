@@ -33,4 +33,5 @@ public class CartItemPK {
     public void setProduct(Product product) {
         this.product = product;
     }
+
 }

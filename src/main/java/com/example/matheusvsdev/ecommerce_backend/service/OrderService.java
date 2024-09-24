@@ -14,10 +14,16 @@ import java.util.stream.Collectors;
 public class OrderService {
 
     @Autowired
-    private UserService userService;
+    private AddressRepository addressRepository;
 
     @Autowired
-    private EmailService emailService;
+    private DeliveryRepository deliveryRepository;
+
+    @Autowired
+    private ProductRepository productRepository;
+
+    @Autowired
+    private CartItemRepository cartItemRepository;
 
     @Autowired
     private OrderRepository orderRepository;
@@ -26,80 +32,16 @@ public class OrderService {
     private OrderItemRepository orderItemRepository;
 
     @Autowired
-    private ProductRepository productRepository;
-
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private AddressRepository addressRepository;
-
-    @Autowired
-    private AddressService addressService;
-
-    @Autowired
     private AuthService authService;
-
-    @Autowired
-    private FreightService freightService;
-
-    @Autowired
-    private DeliveryRepository deliveryRepository;
-
-    @Autowired
-    private PaymentRepository paymentRepository;
-
-    @Autowired
-    private PaymentService paymentService;
 
     @Autowired
     private CartService cartService;
 
     @Autowired
-    private CartRepository cartRepository;
+    private DeliveryService deliveryService;
 
     @Autowired
-    private CartItemRepository cartItemRepository;
-
-    @Transactional
-    public OrderResponseDTO createOrder(OrderDTO dto) {
-
-        Order order = new Order();
-
-        order.setMoment(LocalDateTime.now());
-        order.setOrderStatus(OrderStatus.CONFIRMADO);
-
-        addOrderItems(order, dto.getItems());
-
-        User user = authService.autenthicated();
-        order.setUser(user);
-
-        Address address = addressService.findById(dto.getEnderecoId());
-        authService.validateSelfOrAdmin(address.getClient().getId());
-
-        order.setAddress(address);
-        address.getOrders().add(order);
-
-        Payment payment = createPayment(dto.getPagamento());
-        order.setPayment(payment);
-        payment.setOrder(order);
-
-        orderRepository.save(order);
-
-        Double freightCost = freightService.calculateFreight(address.getState());
-        order.setFreightCost(freightCost);
-
-        Delivery delivery = createDelivery();
-        order.setDelivery(delivery);
-        delivery.setOrder(order);
-
-        deliveryRepository.save(delivery);
-        orderItemRepository.saveAll(order.getItems());
-
-        emailService.orderConfirmation(order);
-
-        return new OrderResponseDTO(order);
-    }
+    private EmailService emailService;
 
     @Transactional
     public OrderResponseDTO placeOrderFromCart(OrderDTO orderDTO) {
@@ -119,7 +61,7 @@ public class OrderService {
         User user = authService.autenthicated();
         order.setUser(user);
 
-        Address address = addressService.findById(orderDTO.getEnderecoId());
+        Address address = addressRepository.findById(orderDTO.getEnderecoId()).get();
         authService.validateSelfOrAdmin(address.getClient().getId());
 
         order.setAddress(address);
@@ -131,14 +73,15 @@ public class OrderService {
 
         order.setTotal(cart.getTotal());
 
-        orderRepository.save(order);
-
-        Double freightCost = freightService.calculateFreight(address.getState());
+        Double freightCost = deliveryService.calculateFreight(address.getState());
         order.setFreightCost(freightCost);
 
         Delivery delivery = createDelivery();
-        order.setDelivery(delivery);
+        delivery.setFreightCost(freightCost);
         delivery.setOrder(order);
+        order.setDelivery(delivery);
+
+        orderRepository.save(order);
 
         for (CartItem cartItem : cart.getItems()) {
             cartItemRepository.delete(cartItem);
@@ -176,14 +119,6 @@ public class OrderService {
         return orders.stream().map(x -> new OrderDTO(x)).collect(Collectors.toList());
     }
 
-    private void addOrderItems(Order order, List<OrderItemDTO> itemDTOs) {
-        for (OrderItemDTO itemDTO : itemDTOs) {
-            Product product = productRepository.getReferenceById(itemDTO.getProductId());
-            OrderItem item = new OrderItem(order, product, itemDTO.getQuantity(), product.getPrice());
-            order.getItems().add(item);
-        }
-    }
-
     private Payment createPayment(PaymentDTO paymentDTO) {
         Payment payment = new Payment();
         payment.setPaymentMethod(paymentDTO.getPaymentMethod());
@@ -198,10 +133,4 @@ public class OrderService {
         delivery.setEstimatedDeliveryDate(LocalDateTime.now().plusDays(15));
         return delivery;
     }
-
-    //public OrderResponseDTO getOrderDetails(Long orderId) {
-        //Order order = orderRepository.findById(orderId).orElseThrow(() -> new RuntimeException("Order not found"));
-
-        //return new OrderResponseDTO(order);
-    //}
 }

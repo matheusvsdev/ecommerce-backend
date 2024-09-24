@@ -1,17 +1,14 @@
-package com.example.matheusvsdev.ecommerce_backend.resource;
+package com.example.matheusvsdev.ecommerce_backend.controller;
 
 import com.example.matheusvsdev.ecommerce_backend.dto.AddressDTO;
-import com.example.matheusvsdev.ecommerce_backend.dto.CartDTO;
-import com.example.matheusvsdev.ecommerce_backend.dto.OrderDTO;
+import com.example.matheusvsdev.ecommerce_backend.dto.ProductDTO;
 import com.example.matheusvsdev.ecommerce_backend.service.AddressService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
 import java.net.URI;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping(value = "address")
@@ -36,5 +33,24 @@ public class AddressController {
     public ResponseEntity<List<AddressDTO>> findAll() {
         List<AddressDTO> cartList = addressService.findAll();
         return ResponseEntity.ok(cartList);
+    }
+
+    @GetMapping(value = "/{id}")
+    private ResponseEntity<AddressDTO> findById(@PathVariable Long id) {
+        AddressDTO address = addressService.findById(id);
+
+        return ResponseEntity.ok(address);
+    }
+
+    @PutMapping(value = "/{id}")
+    public ResponseEntity<AddressDTO> update(@PathVariable Long id, @RequestBody AddressDTO dto) {
+        dto = addressService.update(id, dto);
+        return ResponseEntity.ok().body(dto);
+    }
+
+    @DeleteMapping(value = "/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        addressService.delete(id);
+        return ResponseEntity.noContent().build();
     }
 }

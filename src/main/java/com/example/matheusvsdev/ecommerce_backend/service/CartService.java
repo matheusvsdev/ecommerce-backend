@@ -2,7 +2,6 @@ package com.example.matheusvsdev.ecommerce_backend.service;
 
 import com.example.matheusvsdev.ecommerce_backend.dto.CartDTO;
 import com.example.matheusvsdev.ecommerce_backend.dto.CartItemDTO;
-import com.example.matheusvsdev.ecommerce_backend.dto.OrderDTO;
 import com.example.matheusvsdev.ecommerce_backend.entities.*;
 import com.example.matheusvsdev.ecommerce_backend.repository.CartItemRepository;
 import com.example.matheusvsdev.ecommerce_backend.repository.CartRepository;
@@ -10,7 +9,6 @@ import com.example.matheusvsdev.ecommerce_backend.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.util.Optional;
 
 @Service
@@ -20,10 +18,10 @@ public class CartService {
     private ProductRepository productRepository;
 
     @Autowired
-    private CartRepository cartRepository;
+    private CartItemRepository cartItemRepository;
 
     @Autowired
-    private CartItemRepository cartItemRepository;
+    private CartRepository cartRepository;
 
     @Autowired
     private AuthService authService;
@@ -58,12 +56,48 @@ public class CartService {
         return new CartDTO(cart);
     }
 
+    @Transactional
+    public CartDTO removetemToCart(Long productId) {
+        User user = authService.autenthicated();
+
+        Cart cart = cartRepository.findByUserId(user.getId()).get();
+
+        Optional<CartItem> cartItem = cart.getItems().stream()
+                .filter(x -> x.getProduct().getId().equals(productId))
+                .findFirst();
+
+        CartItem item = cartItem.get();
+
+        cart.removeItem(item);
+        cart.setTotal(cart.getTotal());
+
+        cart.setTotal(cart.getTotal());
+
+        cartRepository.save(cart);
+
+        return new CartDTO(cart);
+    }
+
+    @Transactional
+    public CartDTO clearCart() {
+        User user = authService.autenthicated();
+
+        Cart cart = cartRepository.findByUserId(user.getId()).get();
+
+        cart.clearItems();
+
+        cart.setTotal(0.0);
+
+        cartRepository.save(cart);
+
+        return new CartDTO(cart);
+    }
+
     @Transactional(readOnly = true)
-    public Cart findById(Long id) {
-        Cart cart = cartRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Pedido não encontrado"));
-        authService.validateSelfOrAdmin(cart.getUser().getId());
-        return cart;
+    public CartDTO getCartByUser() {
+        User user = authService.autenthicated();
+        Cart cart = cartRepository.findByUser(user).orElseThrow(null);
+        return new CartDTO(cart);
     }
 
     private Cart createNewCartForUser(User user) {
@@ -86,6 +120,7 @@ public class CartService {
         cartRepository.save(cart);
     }
 
+    @Transactional(readOnly = true)
     public Cart findCartByAuthenticatedUser() {
         User user = authService.autenthicated();
         return cartRepository.findByUser(user)

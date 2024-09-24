@@ -2,7 +2,7 @@ package com.example.matheusvsdev.ecommerce_backend.dto;
 
 import com.example.matheusvsdev.ecommerce_backend.entities.OrderItem;
 
-public class OrderItemDTO {
+public class OrderItemsDTO {
 
     private Long productId;
 
@@ -14,7 +14,7 @@ public class OrderItemDTO {
 
     private String img;
 
-    public OrderItemDTO(Long productId, String name, Double price, Integer quantity, String img) {
+    public OrderItemsDTO(Long productId, String name, Double price, Integer quantity, String img) {
         this.productId = productId;
         this.name = name;
         this.price = price;
@@ -22,12 +22,15 @@ public class OrderItemDTO {
         this.img = img;
     }
 
-    public OrderItemDTO(OrderItem entity) {
+    public OrderItemsDTO(OrderItem entity) {
         productId = entity.getProduct().getId();
         name = entity.getProduct().getName();
         price = entity.getPrice();
         quantity = entity.getQuantity();
         img = entity.getProduct().getImg();
+    }
+
+    public OrderItemsDTO(Long id, Integer quantity, Double price) {
     }
 
     public Long getProductId() {

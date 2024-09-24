@@ -8,13 +8,17 @@ import com.example.matheusvsdev.ecommerce_backend.projection.UserDetailsProjecti
 import com.example.matheusvsdev.ecommerce_backend.repository.RoleRepository;
 import com.example.matheusvsdev.ecommerce_backend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class UserService implements UserDetailsService {
@@ -57,6 +61,36 @@ public class UserService implements UserDetailsService {
         user = userRepository.save(user);
 
         return new UserDTO(user);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<UserDTO> findAllPaged(Pageable pageable) {
+        Page<User> list = userRepository.findAll(pageable);
+        return list.map(x -> new UserDTO(x));
+    }
+
+    @Transactional(readOnly = true)
+    public UserDTO findById(Long id) {
+        Optional<User> obj = userRepository.findById(id);
+        User entity = obj.get();
+
+        return new UserDTO(entity);
+    }
+
+    @Transactional
+    public UserDTO update(Long id, UserDTO dto) {
+
+        User entity = userRepository.getReferenceById(id);
+        assigningDtoToEntities(entity, dto);
+        entity = userRepository.save(entity);
+
+        return new UserDTO(entity);
+    }
+
+    @Transactional(propagation = Propagation.SUPPORTS)
+    public void delete(Long id) {
+        userRepository.existsById(id);
+        userRepository.deleteById(id);
     }
 
     @Override

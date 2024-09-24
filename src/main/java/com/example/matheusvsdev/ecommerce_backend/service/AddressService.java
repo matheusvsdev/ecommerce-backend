@@ -1,17 +1,12 @@
 package com.example.matheusvsdev.ecommerce_backend.service;
 
-import com.example.matheusvsdev.ecommerce_backend.dto.AddressDTO;
-import com.example.matheusvsdev.ecommerce_backend.dto.CartDTO;
-import com.example.matheusvsdev.ecommerce_backend.dto.OrderDTO;
-import com.example.matheusvsdev.ecommerce_backend.entities.Address;
-import com.example.matheusvsdev.ecommerce_backend.entities.Order;
-import com.example.matheusvsdev.ecommerce_backend.entities.State;
-import com.example.matheusvsdev.ecommerce_backend.entities.User;
+import com.example.matheusvsdev.ecommerce_backend.dto.*;
+import com.example.matheusvsdev.ecommerce_backend.entities.*;
 import com.example.matheusvsdev.ecommerce_backend.repository.AddressRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -20,9 +15,6 @@ public class AddressService {
 
     @Autowired
     private AddressRepository addressRepository;
-
-    @Autowired
-    private UserService userService;
 
     @Autowired
     private AuthService authService;
@@ -47,9 +39,11 @@ public class AddressService {
     }
 
     @Transactional(readOnly = true)
-    public Address findById(Long id) {
-        return addressRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Endereço não encontrado"));
+    public AddressDTO findById(Long id) {
+        Address address = addressRepository.findById(id).get();
+
+        authService.validateSelfOrAdmin(address.getClient().getId());
+        return new AddressDTO(address);
     }
 
     @Transactional(readOnly = true)
@@ -66,4 +60,32 @@ public class AddressService {
         return addresses.stream().map(x -> new AddressDTO(x)).collect(Collectors.toList());
     }
 
+    @Transactional
+    public AddressDTO update(Long id, AddressDTO dto) {
+
+        Address address = addressRepository.getReferenceById(id);
+        assigningDtoToEntities(address, dto);
+        address = addressRepository.save(address);
+
+        authService.validateSelfOrAdmin(address.getClient().getId());
+
+        return new AddressDTO(address);
+    }
+
+    @Transactional(propagation = Propagation.SUPPORTS)
+    public void delete(Long id) {
+        User user = authService.autenthicated();
+
+        addressRepository.existsById(id);
+        addressRepository.deleteById(id);
+    }
+
+    public void assigningDtoToEntities(Address address, AddressDTO dto) {
+        address.setCity(dto.getCity());
+        address.setNeighborhood(dto.getNeighborhood());
+        address.setStreet(dto.getStreet());
+        address.setNumber(dto.getNumber());
+        address.setComplement(dto.getComplement());
+        address.setCep(dto.getCep());
+    }
 }

@@ -1,6 +1,8 @@
-package com.example.matheusvsdev.ecommerce_backend.resource;
+package com.example.matheusvsdev.ecommerce_backend.controller;
 
 import com.example.matheusvsdev.ecommerce_backend.dto.DeliveryDTO;
+import com.example.matheusvsdev.ecommerce_backend.dto.DeliveryInformationDTO;
+import com.example.matheusvsdev.ecommerce_backend.service.AddressService;
 import com.example.matheusvsdev.ecommerce_backend.service.DeliveryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -13,9 +15,20 @@ public class DeliveryController {
     @Autowired
     private DeliveryService deliveryService;
 
+    @Autowired
+    private AddressService addressService;
+
     @PutMapping("/{id}")
     public ResponseEntity<DeliveryDTO> updateProduct(@PathVariable Long id, @RequestBody DeliveryDTO deliveryDTO) {
         deliveryDTO = deliveryService.updateDeliveryStatus(id, deliveryDTO);
         return ResponseEntity.ok(deliveryDTO);
     }
+
+    @GetMapping(value = "/info/{addressId}")
+    public ResponseEntity<DeliveryInformationDTO> getDeliveryInformation(@PathVariable Long addressId ) {
+        DeliveryInformationDTO deliveryInformation = deliveryService.getDeliveryInformation(addressId);
+
+        return ResponseEntity.ok(deliveryInformation);
+    }
+
 }

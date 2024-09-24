@@ -20,7 +20,7 @@ public class Cart {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @OneToMany(mappedBy = "id.cart")
+    @OneToMany(mappedBy = "id.cart", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<CartItem> items = new HashSet<>();
 
     public Cart() {
@@ -71,6 +71,10 @@ public class Cart {
     public void removeItem(CartItem item) {
         items.remove(item);
         item.setCart(null);
+    }
+
+    public void clearItems() {
+        this.items.clear();
     }
 
     public List<Product> getProducts() {

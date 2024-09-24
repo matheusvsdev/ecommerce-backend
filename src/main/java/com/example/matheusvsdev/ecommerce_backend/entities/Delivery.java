@@ -17,6 +17,8 @@ public class Delivery {
 
     private LocalDateTime orderUpdateDate, estimatedDeliveryDate;
 
+    private Double freightCost;
+
     @OneToOne(mappedBy = "delivery")
     @JsonIgnore
     private Order order;
@@ -27,11 +29,12 @@ public class Delivery {
     public Delivery(Long id,
                     DeliveryStatus deliveryStatus,
                     LocalDateTime orderUpdateDate,
-                    LocalDateTime estimatedDeliveryDate) {
+                    LocalDateTime estimatedDeliveryDate, Double freightCost) {
         this.id = id;
         this.deliveryStatus = deliveryStatus;
         this.orderUpdateDate = orderUpdateDate;
         this.estimatedDeliveryDate = estimatedDeliveryDate;
+        this.freightCost = freightCost;
     }
 
     public Long getId() {
@@ -72,5 +75,13 @@ public class Delivery {
 
     public void setOrder(Order order) {
         this.order = order;
+    }
+
+    public Double getFreightCost() {
+        return freightCost;
+    }
+
+    public void setFreightCost(Double freightCost) {
+        this.freightCost = freightCost;
     }
 }

@@ -12,6 +12,8 @@ public class DeliveryDTO {
 
     private LocalDateTime orderUpdateDate, estimatedDeliveryDate;
 
+    private Double freightCost;
+
     private Long orderId;
 
     public DeliveryDTO() {
@@ -21,12 +23,13 @@ public class DeliveryDTO {
                        DeliveryStatus deliveryStatus,
                        LocalDateTime orderUpdateDate,
                        LocalDateTime estimatedDeliveryDate,
-                       Long orderId) {
+                       Long orderId, Double freightCost) {
         this.id = id;
         this.deliveryStatus = deliveryStatus;
         this.orderUpdateDate = orderUpdateDate;
         this.estimatedDeliveryDate = estimatedDeliveryDate;
         this.orderId = orderId;
+        this.freightCost = freightCost;
     }
 
     public DeliveryDTO(Delivery entity) {
@@ -34,6 +37,7 @@ public class DeliveryDTO {
         deliveryStatus = entity.getDeliveryStatus();
         orderUpdateDate = entity.getOrderUpdateDate();
         estimatedDeliveryDate = entity.getEstimatedDeliveryDate();
+        freightCost = entity.getFreightCost();
     }
 
     public Long getId() {
@@ -50,5 +54,9 @@ public class DeliveryDTO {
 
     public LocalDateTime getOrderUpdateDate() {
         return orderUpdateDate;
+    }
+
+    public Double getFreightCost() {
+        return freightCost;
     }
 }
