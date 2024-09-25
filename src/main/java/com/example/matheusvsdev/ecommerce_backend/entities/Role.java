@@ -43,7 +43,7 @@ public class Role implements GrantedAuthority {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(authority);
+		return Objects.hash(authority); // Gera um hash com base na autoridade
 	}
 
 	@Override
@@ -55,6 +55,6 @@ public class Role implements GrantedAuthority {
 		if (getClass() != obj.getClass())
 			return false;
 		Role other = (Role) obj;
-		return Objects.equals(authority, other.authority);
+		return Objects.equals(authority, other.authority); // Compara as autoridades
 	}
 }

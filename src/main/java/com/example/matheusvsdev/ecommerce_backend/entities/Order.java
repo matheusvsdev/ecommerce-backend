@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 @Entity
@@ -157,5 +158,19 @@ public class Order {
 
     public List<Product> getProducts() {
         return items.stream().map(x -> x.getProduct()).toList();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Order order = (Order) o;
+        return Objects.equals(id, order.id) && Objects.equals(moment, order.moment) && Objects.equals(orderedAmount, order.orderedAmount) && Objects.equals(total, order.total) && Objects.equals(payment, order.payment) && orderStatus == order.orderStatus && Objects.equals(user, order.user) && Objects.equals(delivery, order.delivery) && Objects.equals(items, order.items) && Objects.equals(address, order.address) && Objects.equals(freightCost, order.freightCost);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id);
     }
 }

@@ -6,6 +6,7 @@ import com.example.matheusvsdev.ecommerce_backend.entities.*;
 import com.example.matheusvsdev.ecommerce_backend.repository.CartItemRepository;
 import com.example.matheusvsdev.ecommerce_backend.repository.CartRepository;
 import com.example.matheusvsdev.ecommerce_backend.repository.ProductRepository;
+import com.example.matheusvsdev.ecommerce_backend.service.exceptions.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,12 +29,13 @@ public class CartService {
 
     @Transactional
     public CartDTO addItemToCart(CartItemDTO cartItemDTO) {
-        User user = authService.autenthicated();
+        User user = authService.authenticated();
 
         Cart cart = cartRepository.findByUserId(user.getId())
                 .orElseGet(() -> createNewCartForUser(user));
 
-        Product product = productRepository.findById(cartItemDTO.getProductId()).get();
+        Product product = productRepository.findById(cartItemDTO.getProductId())
+                .orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado"));
 
         Optional<CartItem> cartItem = cart.getItems().stream()
                 .filter(x -> x.getProduct().getId().equals(cartItemDTO.getProductId()))
@@ -58,15 +60,17 @@ public class CartService {
 
     @Transactional
     public CartDTO removetemToCart(Long productId) {
-        User user = authService.autenthicated();
+        User user = authService.authenticated();
 
-        Cart cart = cartRepository.findByUserId(user.getId()).get();
+        Cart cart = cartRepository.findByUserId(user.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Adicione itens primeiro"));
 
         Optional<CartItem> cartItem = cart.getItems().stream()
                 .filter(x -> x.getProduct().getId().equals(productId))
                 .findFirst();
 
-        CartItem item = cartItem.get();
+        CartItem item = cartItem
+                .orElseThrow(() -> new ResourceNotFoundException("Item não encontrado"));
 
         cart.removeItem(item);
         cart.setTotal(cart.getTotal());
@@ -80,9 +84,10 @@ public class CartService {
 
     @Transactional
     public CartDTO clearCart() {
-        User user = authService.autenthicated();
+        User user = authService.authenticated();
 
-        Cart cart = cartRepository.findByUserId(user.getId()).get();
+        Cart cart = cartRepository.findByUserId(user.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Adicione itens primeiro"));
 
         cart.clearItems();
 
@@ -95,8 +100,9 @@ public class CartService {
 
     @Transactional(readOnly = true)
     public CartDTO getCartByUser() {
-        User user = authService.autenthicated();
-        Cart cart = cartRepository.findByUser(user).orElseThrow(null);
+        User user = authService.authenticated();
+        Cart cart = cartRepository.findByUser(user)
+                .orElseThrow(() -> new ResourceNotFoundException("Adicione itens primeiro"));
         return new CartDTO(cart);
     }
 
@@ -122,7 +128,7 @@ public class CartService {
 
     @Transactional(readOnly = true)
     public Cart findCartByAuthenticatedUser() {
-        User user = authService.autenthicated();
+        User user = authService.authenticated();
         return cartRepository.findByUser(user)
                 .orElseThrow(() -> new RuntimeException("Carrinho não encontrado para o usuário"));
     }

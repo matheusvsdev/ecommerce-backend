@@ -1,10 +1,9 @@
 package com.example.matheusvsdev.ecommerce_backend.entities;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 @Table(name = "tb_address")
@@ -123,5 +122,19 @@ public class Address {
                 "\nRua = " + street +
                 "\nNúmero = " + number +
                 "\nComplemento = " + complement;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Address address = (Address) o;
+        return Objects.equals(id, address.id) && state == address.state && Objects.equals(neighborhood, address.neighborhood) && Objects.equals(street, address.street) && Objects.equals(number, address.number) && Objects.equals(city, address.city) && Objects.equals(cep, address.cep) && Objects.equals(complement, address.complement) && Objects.equals(orders, address.orders) && Objects.equals(client, address.client);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id);
     }
 }

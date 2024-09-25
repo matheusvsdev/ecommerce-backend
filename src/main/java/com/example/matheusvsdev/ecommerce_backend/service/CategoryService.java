@@ -3,7 +3,12 @@ package com.example.matheusvsdev.ecommerce_backend.service;
 import com.example.matheusvsdev.ecommerce_backend.dto.CategoryDTO;
 import com.example.matheusvsdev.ecommerce_backend.entities.Category;
 import com.example.matheusvsdev.ecommerce_backend.repository.CategoryRepository;
+import com.example.matheusvsdev.ecommerce_backend.service.exceptions.ArgumentAlreadyExistsException;
+import com.example.matheusvsdev.ecommerce_backend.service.exceptions.DatabaseException;
+import com.example.matheusvsdev.ecommerce_backend.service.exceptions.ResourceNotFoundException;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,13 +31,16 @@ public class CategoryService {
 	@Transactional(readOnly = true)
 	public CategoryDTO findById(Long id) {
 		Optional<Category> obj = repository.findById(id);
-		Category entity = obj.get();
+		Category entity = obj.orElseThrow(() -> new ResourceNotFoundException("Categoria não encontrada"));
 
 		return new CategoryDTO(entity);
 	}
 
 	@Transactional
 	public CategoryDTO insert(CategoryDTO dto) {
+		if (repository.existsByName(dto.getName())) {
+			throw new ArgumentAlreadyExistsException("Já existe categoria cadastrada com esse nome");
+		}
 		Category entity = new Category();
 		entity.setName(dto.getName());
 		entity = repository.save(entity);
@@ -42,16 +50,26 @@ public class CategoryService {
 
 	@Transactional
 	public CategoryDTO update(Long id, CategoryDTO dto) {
-		Category entity = repository.getReferenceById(id);
-		entity.setName(dto.getName());
-		entity = repository.save(entity);
+		try {
+			Category entity = repository.getReferenceById(id);
+			entity.setName(dto.getName());
+			entity = repository.save(entity);
 
-		return new CategoryDTO(entity);
+			return new CategoryDTO(entity);
+		} catch (EntityNotFoundException e) {
+			throw new ResourceNotFoundException("Categoria não encontrada");
+		}
 	}
 
     @Transactional(propagation = Propagation.SUPPORTS)
     public void delete(Long id) {
-    	repository.existsById(id);
-		repository.deleteById(id);
+    	if(!repository.existsById(id)) {
+			throw new ResourceNotFoundException("Categoria não encontrada");
+		}
+		try {
+			repository.deleteById(id);
+		} catch (DataIntegrityViolationException e) {
+			throw new DatabaseException("Falha de integridade referencial");
+		}
     }
 }

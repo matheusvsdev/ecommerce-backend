@@ -4,21 +4,19 @@ import com.example.matheusvsdev.ecommerce_backend.dto.CategoryDTO;
 import com.example.matheusvsdev.ecommerce_backend.dto.ProductDTO;
 import com.example.matheusvsdev.ecommerce_backend.entities.Category;
 import com.example.matheusvsdev.ecommerce_backend.entities.Product;
-import com.example.matheusvsdev.ecommerce_backend.projection.ProductProjection;
 import com.example.matheusvsdev.ecommerce_backend.repository.CategoryRepository;
 import com.example.matheusvsdev.ecommerce_backend.repository.ProductRepository;
+import com.example.matheusvsdev.ecommerce_backend.service.exceptions.ArgumentAlreadyExistsException;
+import com.example.matheusvsdev.ecommerce_backend.service.exceptions.DatabaseException;
+import com.example.matheusvsdev.ecommerce_backend.service.exceptions.ResourceNotFoundException;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -32,6 +30,9 @@ public class ProductService {
 
     @Transactional
     public ProductDTO insertProduct(ProductDTO productDTO) {
+        if (productRepository.existsByName(productDTO.getName())) {
+            throw new ArgumentAlreadyExistsException("Já existe produto cadastrado com esse nome");
+        }
         Product product = new Product();
         assigningDtoToEntities(product, productDTO);
         product = productRepository.save(product);
@@ -49,25 +50,34 @@ public class ProductService {
     @Transactional(readOnly = true)
     public ProductDTO findById(Long id) {
         Optional<Product> obj = productRepository.findById(id);
-        Product entity = obj.get();
+        Product entity = obj.orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado"));
 
         return new ProductDTO(entity, entity.getCategories());
     }
 
     @Transactional
     public ProductDTO update(Long id, ProductDTO dto) {
+        try {
+            Product entity = productRepository.getReferenceById(id);
+            assigningDtoToEntities(entity, dto);
+            entity = productRepository.save(entity);
 
-        Product entity = productRepository.getReferenceById(id);
-        assigningDtoToEntities(entity, dto);
-        entity = productRepository.save(entity);
-
-        return new ProductDTO(entity);
+            return new ProductDTO(entity);
+        } catch (EntityNotFoundException e) {
+            throw new ResourceNotFoundException("Produto não encontrado");
+        }
     }
 
     @Transactional(propagation = Propagation.SUPPORTS)
     public void delete(Long id) {
-        productRepository.existsById(id);
-        productRepository.deleteById(id);
+        if(!productRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Produto não encontrado");
+        }
+        try {
+            productRepository.deleteById(id);
+        } catch (DataIntegrityViolationException e) {
+            throw new DatabaseException("Falha de integridade referencial");
+        }
     }
 
     public void assigningDtoToEntities(Product entity, ProductDTO dto) {

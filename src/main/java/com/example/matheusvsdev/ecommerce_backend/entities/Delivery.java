@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Entity
 public class Delivery {
@@ -83,5 +84,19 @@ public class Delivery {
 
     public void setFreightCost(Double freightCost) {
         this.freightCost = freightCost;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Delivery delivery = (Delivery) o;
+        return Objects.equals(id, delivery.id) && deliveryStatus == delivery.deliveryStatus && Objects.equals(orderUpdateDate, delivery.orderUpdateDate) && Objects.equals(estimatedDeliveryDate, delivery.estimatedDeliveryDate) && Objects.equals(freightCost, delivery.freightCost) && Objects.equals(order, delivery.order);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id);
     }
 }

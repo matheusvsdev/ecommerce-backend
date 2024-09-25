@@ -2,6 +2,7 @@ package com.example.matheusvsdev.ecommerce_backend.service;
 
 import com.example.matheusvsdev.ecommerce_backend.entities.Order;
 import com.example.matheusvsdev.ecommerce_backend.entities.User;
+import com.example.matheusvsdev.ecommerce_backend.service.exceptions.EmailSendException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.MailException;
@@ -29,9 +30,8 @@ public class EmailService {
             message.setText(body);
             emailSender.send(message);
         }
-        catch (MailException e){
-            throw new MailException("Failed to send email") {
-            };
+        catch (Exception e){
+            throw new EmailSendException("Erro ao enviar o email");
         }
     }
 

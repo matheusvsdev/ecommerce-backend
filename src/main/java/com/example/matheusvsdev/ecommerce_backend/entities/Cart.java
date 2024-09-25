@@ -31,6 +31,7 @@ public class Cart {
         this.user = user;
     }
 
+    // Método que calcula e retorna o total do carrinho
     public Double getTotal() {
         double sum = 0.0;
         for (CartItem itemDTO : items) {
@@ -64,10 +65,12 @@ public class Cart {
         return items;
     }
 
+    // Método que adiciona um item ao carrinho
     public void addItem(CartItem item) {
         items.add(item);
     }
 
+    // Método que limpa todos os itens do carrinho
     public void removeItem(CartItem item) {
         items.remove(item);
         item.setCart(null);

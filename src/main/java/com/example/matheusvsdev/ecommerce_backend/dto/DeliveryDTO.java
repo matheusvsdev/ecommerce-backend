@@ -14,8 +14,6 @@ public class DeliveryDTO {
 
     private Double freightCost;
 
-    private Long orderId;
-
     public DeliveryDTO() {
     }
 
@@ -28,7 +26,6 @@ public class DeliveryDTO {
         this.deliveryStatus = deliveryStatus;
         this.orderUpdateDate = orderUpdateDate;
         this.estimatedDeliveryDate = estimatedDeliveryDate;
-        this.orderId = orderId;
         this.freightCost = freightCost;
     }
 

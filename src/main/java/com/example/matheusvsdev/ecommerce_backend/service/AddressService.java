@@ -3,7 +3,11 @@ package com.example.matheusvsdev.ecommerce_backend.service;
 import com.example.matheusvsdev.ecommerce_backend.dto.*;
 import com.example.matheusvsdev.ecommerce_backend.entities.*;
 import com.example.matheusvsdev.ecommerce_backend.repository.AddressRepository;
+import com.example.matheusvsdev.ecommerce_backend.service.exceptions.DatabaseException;
+import com.example.matheusvsdev.ecommerce_backend.service.exceptions.ResourceNotFoundException;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,7 +25,7 @@ public class AddressService {
 
     @Transactional
     public AddressDTO insertAddress(AddressDTO addressDTO) {
-        User user = authService.autenthicated();
+        User user = authService.authenticated();
 
         Address address = new Address();
         address.setCep(addressDTO.getCep());
@@ -40,15 +44,15 @@ public class AddressService {
 
     @Transactional(readOnly = true)
     public AddressDTO findById(Long id) {
-        Address address = addressRepository.findById(id).get();
+        Address address = addressRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Endereço não encontrado"));
 
-        authService.validateSelfOrAdmin(address.getClient().getId());
         return new AddressDTO(address);
     }
 
     @Transactional(readOnly = true)
     public List<AddressDTO> findAll() {
-        User user = authService.autenthicated();
+        User user = authService.authenticated();
 
         List<Address> addresses;
 
@@ -62,22 +66,31 @@ public class AddressService {
 
     @Transactional
     public AddressDTO update(Long id, AddressDTO dto) {
+        try {
+            Address address = addressRepository.getReferenceById(id);
+            assigningDtoToEntities(address, dto);
+            address = addressRepository.save(address);
 
-        Address address = addressRepository.getReferenceById(id);
-        assigningDtoToEntities(address, dto);
-        address = addressRepository.save(address);
+            authService.validateSelfOrAdmin(address.getClient().getId());
 
-        authService.validateSelfOrAdmin(address.getClient().getId());
-
-        return new AddressDTO(address);
+            return new AddressDTO(address);
+        } catch (EntityNotFoundException e) {
+            throw new ResourceNotFoundException("Endereço não encontrado");
+        }
     }
 
     @Transactional(propagation = Propagation.SUPPORTS)
     public void delete(Long id) {
-        User user = authService.autenthicated();
-
-        addressRepository.existsById(id);
-        addressRepository.deleteById(id);
+        User user = authService.authenticated();
+        if(!addressRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Endereço não encontrado");
+        }
+        try {
+            addressRepository.deleteById(id);
+        } catch (DataIntegrityViolationException e) {
+            throw new DatabaseException("Falha de integridade referencial");
+        }
+        authService.validateSelfOrAdmin(user.getId());
     }
 
     public void assigningDtoToEntities(Address address, AddressDTO dto) {

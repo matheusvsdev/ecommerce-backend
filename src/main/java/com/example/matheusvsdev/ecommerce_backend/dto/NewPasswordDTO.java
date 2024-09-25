@@ -1,9 +1,15 @@
 package com.example.matheusvsdev.ecommerce_backend.dto;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+
 public class NewPasswordDTO {
 
     private String token;
 
+    @NotBlank(message = "Campo obrigatório")
+    @Pattern(regexp = "^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)[A-Za-z\\d]{8,}$"
+            , message = "Senha deve ter pelo menos 8 caracteres, incluindo uma letra maiúscula, uma letra minúscula e um número")
     private String password;
 
     public NewPasswordDTO() {

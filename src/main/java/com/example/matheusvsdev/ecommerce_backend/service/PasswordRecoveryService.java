@@ -6,6 +6,7 @@ import com.example.matheusvsdev.ecommerce_backend.entities.PasswordRecover;
 import com.example.matheusvsdev.ecommerce_backend.entities.User;
 import com.example.matheusvsdev.ecommerce_backend.repository.PasswordRecoverRepository;
 import com.example.matheusvsdev.ecommerce_backend.repository.UserRepository;
+import com.example.matheusvsdev.ecommerce_backend.service.exceptions.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -40,7 +41,7 @@ public class PasswordRecoveryService {
     public void createRecoverToken(EmailDTO body) {
         User user = userRepository.findByEmail(body.getEmail());
         if (user == null) {
-            throw new RuntimeException("Email não encontrado");
+            throw new ResourceNotFoundException("Email não encontrado");
         }
 
         String token = UUID.randomUUID().toString();

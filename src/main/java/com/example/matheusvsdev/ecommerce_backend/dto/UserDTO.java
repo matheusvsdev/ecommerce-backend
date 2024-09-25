@@ -1,6 +1,8 @@
 package com.example.matheusvsdev.ecommerce_backend.dto;
 
 import com.example.matheusvsdev.ecommerce_backend.entities.User;
+import jakarta.validation.constraints.*;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
 import java.util.HashSet;
@@ -10,18 +12,27 @@ public class UserDTO {
 
     private Long id;
 
-    private String firstName;
+    @NotBlank(message = "Campo requerido")
+    @Size(min = 3, message = "Mínimo 3 caracteres")
+    @Pattern(regexp = "^[A-Za-z\\s]+$", message = "O nome deve conter apenas letras")
+    private String firstName, lastName;
 
-    private String lastName;
-
+    @NotNull(message = "A data de aniversário é obrigatória")
+    @Past(message = "A data de nascimento deve ser uma data passada")
     private LocalDate birthDate;
 
+    @NotBlank(message = "Campo requerido")
     private String cpf;
 
     private String phone;
 
+    @NotBlank(message = "Campo requerido")
+    @Pattern(regexp = ".+@.+\\..+", message = "Email deve ter um domínio válido")
     private String email;
 
+    @NotBlank(message = "Campo requerido")
+    @Pattern(regexp = "^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)[A-Za-z\\d]{8,}$"
+            , message = "Senha deve ter pelo menos 8 caracteres, incluindo uma letra maiúscula, uma letra minúscula e um número")
     private String password;
 
     Set<RoleDTO> roles = new HashSet<>();

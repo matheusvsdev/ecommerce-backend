@@ -7,7 +7,12 @@ import com.example.matheusvsdev.ecommerce_backend.entities.User;
 import com.example.matheusvsdev.ecommerce_backend.projection.UserDetailsProjection;
 import com.example.matheusvsdev.ecommerce_backend.repository.RoleRepository;
 import com.example.matheusvsdev.ecommerce_backend.repository.UserRepository;
+import com.example.matheusvsdev.ecommerce_backend.service.exceptions.ArgumentAlreadyExistsException;
+import com.example.matheusvsdev.ecommerce_backend.service.exceptions.DatabaseException;
+import com.example.matheusvsdev.ecommerce_backend.service.exceptions.ResourceNotFoundException;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -37,6 +42,13 @@ public class UserService implements UserDetailsService {
 
     @Transactional
     public UserDTO createUser(UserDTO userDTO) {
+        if (userRepository.existsByCpf(userDTO.getCpf())) {
+            throw new ArgumentAlreadyExistsException("CPF já cadastrado");
+        }
+        if (userRepository.existsByEmail(userDTO.getEmail())) {
+            throw new ArgumentAlreadyExistsException("Email já cadastrado");
+        }
+
         User user = new User();
         assigningDtoToEntities(user, userDTO);
 
@@ -72,25 +84,34 @@ public class UserService implements UserDetailsService {
     @Transactional(readOnly = true)
     public UserDTO findById(Long id) {
         Optional<User> obj = userRepository.findById(id);
-        User entity = obj.get();
+        User entity = obj.orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado"));
 
         return new UserDTO(entity);
     }
 
     @Transactional
     public UserDTO update(Long id, UserDTO dto) {
+        try {
+            User entity = userRepository.getReferenceById(id);
+            assigningDtoToEntities(entity, dto);
+            entity = userRepository.save(entity);
 
-        User entity = userRepository.getReferenceById(id);
-        assigningDtoToEntities(entity, dto);
-        entity = userRepository.save(entity);
-
-        return new UserDTO(entity);
+            return new UserDTO(entity);
+        } catch (EntityNotFoundException e) {
+            throw new ResourceNotFoundException("Usuário não encontrado");
+        }
     }
 
     @Transactional(propagation = Propagation.SUPPORTS)
     public void delete(Long id) {
-        userRepository.existsById(id);
-        userRepository.deleteById(id);
+        if(!userRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Usuário não encontrado");
+        }
+        try {
+            userRepository.deleteById(id);
+        } catch (DataIntegrityViolationException e) {
+            throw new DatabaseException("Falha de integridade referencial");
+        }
     }
 
     @Override
@@ -104,6 +125,9 @@ public class UserService implements UserDetailsService {
         User user = new User();
         user.setEmail(result.get(0).getUsername());
         user.setPassword(result.get(0).getPassword());
+        for (UserDetailsProjection projection : result) {
+            user.addRole(new Role(projection.getRoleId(), projection.getAuthority()));
+        }
 
         return user;
     }

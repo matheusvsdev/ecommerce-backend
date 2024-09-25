@@ -2,6 +2,10 @@ package com.example.matheusvsdev.ecommerce_backend.dto;
 
 import com.example.matheusvsdev.ecommerce_backend.entities.Category;
 import com.example.matheusvsdev.ecommerce_backend.entities.Product;
+import jakarta.persistence.Column;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.Size;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,14 +15,21 @@ public class ProductDTO {
 
     private Long id;
 
+    @NotBlank(message = "Campo requerido")
+    @Size(min = 3, message = "Mínimo 3 caracteres")
     private String name;
 
+    @NotBlank(message = "Descrição não preenchida")
+    @Size(min = 10, message = "Descrição precisa ter no mínimo 10 caracteres")
     private String description;
 
+    @NotBlank(message = "Campo img não preenchido")
     private String img;
 
+    @Positive(message = "A quantidade dever ser positiva")
     private Integer quantity;
 
+    @Positive(message = "O preço dever ser positivo")
     private Double price;
 
     private List<CategoryDTO> categories = new ArrayList<>();

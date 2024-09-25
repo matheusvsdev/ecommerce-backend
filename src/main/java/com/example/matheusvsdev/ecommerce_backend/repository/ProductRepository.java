@@ -13,6 +13,8 @@ import java.util.List;
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Long> {
 
+    boolean existsByName(String name);
+
     @Query(nativeQuery = true, value = """
             SELECT * FROM (
             SELECT DISTINCT products.id, products.name

@@ -15,32 +15,29 @@ public class User implements UserDetails {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String firstName;
+    private String firstName, lastName, phone, password;
 
-    private String lastName;
+    @Column(unique = true)
+    private String cpf, email;
 
     private LocalDate birthDate;
 
-    private String cpf;
-
-    private String phone;
-
-    private String email;
-
-    private String password;
-
+    // Relacionamento um-para-um com o carrinho do usuário
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     private Cart cart;
 
+    // Relacionamento muitos-para-muitos com a função do usuário
     @ManyToMany
     @JoinTable(name = "user_role",
-    joinColumns = @JoinColumn(name = "user_id"),
-    inverseJoinColumns = @JoinColumn(name = "role_id"))
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles = new HashSet<>();
 
+    // Relacionamento um-para-muitos com pedidos
     @OneToMany(mappedBy = "user")
     private List<Order> orders = new ArrayList<>();
 
+    // Relacionamento um-para-muitos com endereços
     @OneToMany(mappedBy = "client")
     private List<Address> address = new ArrayList<>();
 
@@ -153,6 +150,7 @@ public class User implements UserDetails {
         roles.add(role);
     }
 
+    // Verifica se o usuário tem um papel específico
     public boolean hasRole(String roleName) {
         for (Role role : roles) {
             if (role.getAuthority().equals(roleName)) {
@@ -162,9 +160,10 @@ public class User implements UserDetails {
         return false;
     }
 
+    // Métodos da interface UserDetails
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return roles;
+        return roles; // Retorna as funções do usuário como autoridades
     }
 
     @Override

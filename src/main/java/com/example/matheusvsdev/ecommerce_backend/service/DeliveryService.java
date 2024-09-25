@@ -6,11 +6,10 @@ import com.example.matheusvsdev.ecommerce_backend.dto.DeliveryInformationDTO;
 import com.example.matheusvsdev.ecommerce_backend.entities.*;
 import com.example.matheusvsdev.ecommerce_backend.repository.AddressRepository;
 import com.example.matheusvsdev.ecommerce_backend.repository.DeliveryRepository;
+import com.example.matheusvsdev.ecommerce_backend.service.exceptions.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
@@ -27,7 +26,7 @@ public class DeliveryService {
     @Transactional
     public DeliveryDTO updateDeliveryStatus(Long id, DeliveryDTO dto) {
         Delivery delivery = deliveryRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Delivery não encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Delivery não encontrado"));
 
         if (dto.getDeliveryStatus() != null) {
             delivery.setDeliveryStatus(dto.getDeliveryStatus());

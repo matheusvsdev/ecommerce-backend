@@ -5,6 +5,7 @@ import com.example.matheusvsdev.ecommerce_backend.entities.Role;
 public class RoleDTO {
 
     private Long id;
+
     private String authority;
 
     public RoleDTO() {

@@ -3,6 +3,7 @@ package com.example.matheusvsdev.ecommerce_backend.service;
 import com.example.matheusvsdev.ecommerce_backend.dto.*;
 import com.example.matheusvsdev.ecommerce_backend.entities.*;
 import com.example.matheusvsdev.ecommerce_backend.repository.*;
+import com.example.matheusvsdev.ecommerce_backend.service.exceptions.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -58,7 +59,7 @@ public class OrderService {
             order.addItem(orderItem);
         }
 
-        User user = authService.autenthicated();
+        User user = authService.authenticated();
         order.setUser(user);
 
         Address address = addressRepository.findById(orderDTO.getEnderecoId()).get();
@@ -100,14 +101,14 @@ public class OrderService {
     @Transactional(readOnly = true)
     public OrderDTO findById(Long id) {
         Order order = orderRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Pedido não encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Pedido não encontrado"));
         authService.validateSelfOrAdmin(order.getUser().getId());
         return new OrderDTO(order);
     }
 
     @Transactional(readOnly = true)
     public List<OrderDTO> findAll() {
-        User user = authService.autenthicated();
+        User user = authService.authenticated();
 
         List<Order> orders;
 

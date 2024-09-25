@@ -2,11 +2,9 @@ package com.example.matheusvsdev.ecommerce_backend.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
-import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
-import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -18,8 +16,6 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.web.filter.CorsFilter;
-
 import java.util.Arrays;
 
 @Configuration
@@ -27,9 +23,11 @@ import java.util.Arrays;
 @EnableMethodSecurity
 public class ResourceServerConfig {
 
+	// Propriedades injetadas a partir de um arquivo de configuração
 	@Value("${cors.origins}")
 	private String corsOrigins;
 
+	// Configuração de segurança para o console H2 em ambiente de teste
 	@Bean
 	@Profile("test")
 	@Order(1)
@@ -40,17 +38,19 @@ public class ResourceServerConfig {
 		return http.build();
 	}
 
+	// Configuração do servidor de recursos
 	@Bean
 	@Order(3)
 	public SecurityFilterChain rsSecurityFilterChain(HttpSecurity http) throws Exception {
 
-		http.csrf(csrf -> csrf.disable());
-		http.authorizeHttpRequests(authorize -> authorize.anyRequest().permitAll());
-		http.oauth2ResourceServer(oauth2ResourceServer -> oauth2ResourceServer.jwt(Customizer.withDefaults()));
-		http.cors(cors -> cors.configurationSource(corsConfigurationSource()));
+		http.csrf(csrf -> csrf.disable()); // Desativa CSRF
+		http.authorizeHttpRequests(authorize -> authorize.anyRequest().permitAll()); // Permite todas as requisições e travadas por autorização de usuário
+		http.oauth2ResourceServer(oauth2ResourceServer -> oauth2ResourceServer.jwt(Customizer.withDefaults())); // Configura JWT
+		http.cors(cors -> cors.configurationSource(corsConfigurationSource())); // Configuração CORS
 		return http.build();
 	}
 
+	// Conversor de autoridades a partir do token JWT
 	@Bean
 	public JwtAuthenticationConverter jwtAuthenticationConverter() {
 		JwtGrantedAuthoritiesConverter grantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
@@ -62,6 +62,7 @@ public class ResourceServerConfig {
 		return jwtAuthenticationConverter;
 	}
 
+	// Configuração CORS
 	@Bean
 	CorsConfigurationSource corsConfigurationSource() {
 

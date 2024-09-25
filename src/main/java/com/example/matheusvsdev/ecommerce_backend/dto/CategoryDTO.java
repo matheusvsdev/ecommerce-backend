@@ -1,11 +1,13 @@
 package com.example.matheusvsdev.ecommerce_backend.dto;
 
 import com.example.matheusvsdev.ecommerce_backend.entities.Category;
+import jakarta.validation.constraints.NotBlank;
 
 public class CategoryDTO {
 
     private Long id;
 
+    @NotBlank(message = "Campo obrigatório")
     private String name;
 
     public CategoryDTO() {
