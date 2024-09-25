@@ -26,7 +26,7 @@ public class DeliveryController {
         return ResponseEntity.ok(deliveryDTO);
     }
 
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN', ROLE_CLIENT')")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_CLIENT')")
     @GetMapping(value = "/info/{addressId}")
     public ResponseEntity<DeliveryInformationDTO> getDeliveryInformation(@PathVariable Long addressId ) {
         DeliveryInformationDTO deliveryInformation = deliveryService.getDeliveryInformation(addressId);

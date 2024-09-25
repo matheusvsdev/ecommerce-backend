@@ -2,14 +2,13 @@ package com.example.matheusvsdev.ecommerce_backend.dto;
 
 import com.example.matheusvsdev.ecommerce_backend.entities.Category;
 import com.example.matheusvsdev.ecommerce_backend.entities.Product;
-import jakarta.persistence.Column;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class ProductDTO {
 
@@ -53,6 +52,9 @@ public class ProductDTO {
         img = entity.getImg();
         quantity = entity.getQuantity();
         price = entity.getPrice();
+        this.categories = entity.getCategories()
+                .stream().map(CategoryDTO::new)
+                .collect(Collectors.toList());
     }
 
     public ProductDTO(Product entity, Set<Category> categories) {

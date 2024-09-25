@@ -4,6 +4,7 @@ import com.example.matheusvsdev.ecommerce_backend.dto.CategoryDTO;
 import com.example.matheusvsdev.ecommerce_backend.dto.ProductDTO;
 import com.example.matheusvsdev.ecommerce_backend.entities.Category;
 import com.example.matheusvsdev.ecommerce_backend.entities.Product;
+import com.example.matheusvsdev.ecommerce_backend.projection.ProductProjection;
 import com.example.matheusvsdev.ecommerce_backend.repository.CategoryRepository;
 import com.example.matheusvsdev.ecommerce_backend.repository.ProductRepository;
 import com.example.matheusvsdev.ecommerce_backend.service.exceptions.ArgumentAlreadyExistsException;
@@ -17,6 +18,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -42,17 +45,26 @@ public class ProductService {
 
     @Transactional(readOnly = true)
     public Page<ProductDTO> findAllPaged(Pageable pageable) {
-        Page<Product> list = productRepository.findAll(pageable);
+        Page<Product> result = productRepository.findAllProductsWithCategories(pageable);
+        return result.map(ProductDTO::new);
+    }
+    @Transactional(readOnly = true)
+    public Page<ProductDTO> findProductsByCategoryId(Long categoryId, Pageable pageable) {
+        Page<Product> result = productRepository.findProductsByCategoryId(categoryId, pageable);
+        return result.map(ProductDTO::new);
+    }
 
-        return list.map(x -> new ProductDTO(x));
+    @Transactional(readOnly = true)
+    public Page<ProductProjection> searchProducts(List<Long> categoryIds, String name, Pageable pageable) {
+        return productRepository.searchProducts(categoryIds, name, pageable);
     }
 
     @Transactional(readOnly = true)
     public ProductDTO findById(Long id) {
-        Optional<Product> obj = productRepository.findById(id);
-        Product entity = obj.orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado"));
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado"));
 
-        return new ProductDTO(entity, entity.getCategories());
+        return new ProductDTO(product);
     }
 
     @Transactional
