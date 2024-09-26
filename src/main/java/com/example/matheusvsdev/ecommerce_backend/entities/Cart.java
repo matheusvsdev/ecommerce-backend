@@ -38,7 +38,7 @@ public class Cart {
             sum += itemDTO.getSubTotal();
         }
         total = sum;
-        return total;
+        return Math.round(total * 100.0) / 100.0;
     }
 
     public void setTotal(Double total) {

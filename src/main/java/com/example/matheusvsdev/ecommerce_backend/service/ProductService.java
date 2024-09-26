@@ -1,11 +1,14 @@
 package com.example.matheusvsdev.ecommerce_backend.service;
 
 import com.example.matheusvsdev.ecommerce_backend.dto.CategoryDTO;
+import com.example.matheusvsdev.ecommerce_backend.dto.InventoryDTO;
 import com.example.matheusvsdev.ecommerce_backend.dto.ProductDTO;
 import com.example.matheusvsdev.ecommerce_backend.entities.Category;
+import com.example.matheusvsdev.ecommerce_backend.entities.Inventory;
 import com.example.matheusvsdev.ecommerce_backend.entities.Product;
 import com.example.matheusvsdev.ecommerce_backend.projection.ProductProjection;
 import com.example.matheusvsdev.ecommerce_backend.repository.CategoryRepository;
+import com.example.matheusvsdev.ecommerce_backend.repository.InventoryRepository;
 import com.example.matheusvsdev.ecommerce_backend.repository.ProductRepository;
 import com.example.matheusvsdev.ecommerce_backend.service.exceptions.ArgumentAlreadyExistsException;
 import com.example.matheusvsdev.ecommerce_backend.service.exceptions.DatabaseException;
@@ -19,8 +22,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class ProductService {
@@ -31,6 +34,9 @@ public class ProductService {
     @Autowired
     private CategoryRepository categoryRepository;
 
+    @Autowired
+    private InventoryRepository inventoryRepository;
+
     @Transactional
     public ProductDTO insertProduct(ProductDTO productDTO) {
         if (productRepository.existsByName(productDTO.getName())) {
@@ -38,9 +44,17 @@ public class ProductService {
         }
         Product product = new Product();
         assigningDtoToEntities(product, productDTO);
-        product = productRepository.save(product);
 
-        return new ProductDTO(product, product.getCategories());
+        Inventory inventory = new Inventory();
+        inventory.setProduct(product);
+        inventory.setQuantity(productDTO.getInventory().getQuantity());
+        inventory.setUpdateTime(LocalDateTime.now());
+
+        product.setInventory(inventory);
+
+        productRepository.save(product);
+
+        return new ProductDTO(product);
     }
 
     @Transactional(readOnly = true)
@@ -96,7 +110,6 @@ public class ProductService {
         entity.setName(dto.getName());
         entity.setDescription(dto.getDescription());
         entity.setImg(dto.getImg());
-        entity.setQuantity(dto.getQuantity());
         entity.setPrice(dto.getPrice());
 
         entity.getCategories().clear();

@@ -22,16 +22,16 @@ public class PaymentService {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new ResourceNotFoundException("Pedido não encontrado"));
 
-        if (order.getPayment().getPaymentStatus() == PaymentStatus.CONFIRMANDO_PAGAMENTO) {
+        if (order.getPayment().getStatus() == PaymentStatus.CONFIRMANDO_PAGAMENTO) {
 
-            order.getPayment().setPaymentStatus(PaymentStatus.PAGAMENTO_APROVADO);
-            order.getPayment().setPaymentConfirmationDate(LocalDateTime.now());
+            order.getPayment().setStatus(PaymentStatus.PAGAMENTO_APROVADO);
+            order.getPayment().setPaymentConfirmation(LocalDateTime.now());
 
             orderRepository.save(order);
 
             emailService.paymentConfirmation(order);
         } else {
-            throw new RuntimeException("Pagamento não pode ser processado. Status atual: " + order.getPayment().getPaymentStatus());
+            throw new RuntimeException("Pagamento não pode ser processado. Status atual: " + order.getPayment().getStatus());
         }
     }
 }

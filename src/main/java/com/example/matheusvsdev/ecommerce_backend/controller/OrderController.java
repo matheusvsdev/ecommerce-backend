@@ -1,12 +1,14 @@
 package com.example.matheusvsdev.ecommerce_backend.controller;
 
 import com.example.matheusvsdev.ecommerce_backend.dto.OrderDTO;
-import com.example.matheusvsdev.ecommerce_backend.dto.OrderResponseDTO;
 import com.example.matheusvsdev.ecommerce_backend.service.OrderService;
 import com.example.matheusvsdev.ecommerce_backend.service.PaymentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -20,9 +22,14 @@ public class OrderController {
     private PaymentService paymentService;
 
     @PostMapping("/checkout")
-    public ResponseEntity<OrderResponseDTO> checkout(@RequestBody OrderDTO dto) {
-        OrderResponseDTO orderResponse = orderService.placeOrderFromCart(dto);
-        return ResponseEntity.ok(orderResponse);
+    public ResponseEntity<OrderDTO> checkout(@RequestBody OrderDTO dto) {
+        OrderDTO order = orderService.placeOrderFromCart(dto);
+        URI uri = ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(order.getOrderId())
+                .toUri();
+        return ResponseEntity.created(uri).body(order);
     }
 
     @GetMapping(value = "/{id}")

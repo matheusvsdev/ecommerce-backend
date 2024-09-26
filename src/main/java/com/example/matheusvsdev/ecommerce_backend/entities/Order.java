@@ -1,6 +1,8 @@
 package com.example.matheusvsdev.ecommerce_backend.entities;
 
 import jakarta.persistence.*;
+
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
@@ -17,15 +19,14 @@ public class Order {
 
     private LocalDateTime moment;
 
-    private Double orderedAmount;
+    private Double subTotal;
 
     private Double total;
 
     @OneToOne(mappedBy = "order", cascade = CascadeType.ALL)
     private Payment payment;
 
-    @Enumerated(value = EnumType.STRING)
-    private OrderStatus orderStatus;
+    private OrderStatus status;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
@@ -33,7 +34,7 @@ public class Order {
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "delivery_id")
-    private Delivery delivery;
+    private Shipping delivery;
 
     @OneToMany(mappedBy = "id.order")
     private Set<OrderItem> items = new HashSet<>();
@@ -42,37 +43,34 @@ public class Order {
     @JoinColumn(name = "address_id")
     private Address address;
 
-    private Double freightCost = 0.0;
+    private Double freightCost;
 
     public Order() {
     }
 
-    public Order(Long id, LocalDateTime moment, OrderStatus orderStatus, User user, Delivery delivery, Address address) {
+    public Order(Long id, LocalDateTime moment, OrderStatus status, User user, Shipping delivery, Address address) {
         this.id = id;
         this.moment = moment;
         this.user = user;
         this.address = address;
         this.delivery = delivery;
-        this.orderStatus = orderStatus;
+        this.status = status;
     }
 
 
-    public Double getOrderedAmount() {
+    public Double getSubTotal() {
         double sum = 0.0;
         for (OrderItem itemDTO : items) {
             sum += itemDTO.getSubTotal();
         }
-        orderedAmount = sum;
-        return orderedAmount;
+        subTotal = sum;
+        return Math.round(subTotal * 100.0) / 100.0;
     }
 
     public Double getTotal() {
-        if (getOrderedAmount() > 800.0) {
-            freightCost = 0.0;
-        }
-        total = getOrderedAmount() + freightCost;
+        total = getSubTotal() + freightCost;
 
-        return total;
+        return Math.round(total * 100.0) / 100.0;
     }
 
     public void setTotal(Double total) {
@@ -91,7 +89,7 @@ public class Order {
         return user;
     }
 
-    public Delivery getDelivery() {
+    public Shipping getDelivery() {
         return delivery;
     }
 
@@ -123,8 +121,8 @@ public class Order {
         this.payment = payment;
     }
 
-    public OrderStatus getOrderStatus() {
-        return orderStatus;
+    public OrderStatus getStatus() {
+        return status;
     }
 
     public Order(Payment payment) {
@@ -132,11 +130,14 @@ public class Order {
         payment.setOrder(this);
     }
 
-    public void setOrderStatus(OrderStatus orderStatus) {
-        this.orderStatus = orderStatus;
+    public void setStatus(OrderStatus status) {
+        this.status = status;
     }
 
     public Double getFreightCost() {
+        if (getSubTotal() >= 800.0) {
+            freightCost = 0.0;
+        }
         return freightCost;
     }
 
@@ -148,7 +149,7 @@ public class Order {
         this.user = user;
     }
 
-    public void setDelivery(Delivery delivery) {
+    public void setDelivery(Shipping delivery) {
         this.delivery = delivery;
     }
 
@@ -166,7 +167,7 @@ public class Order {
         if (o == null || getClass() != o.getClass()) return false;
 
         Order order = (Order) o;
-        return Objects.equals(id, order.id) && Objects.equals(moment, order.moment) && Objects.equals(orderedAmount, order.orderedAmount) && Objects.equals(total, order.total) && Objects.equals(payment, order.payment) && orderStatus == order.orderStatus && Objects.equals(user, order.user) && Objects.equals(delivery, order.delivery) && Objects.equals(items, order.items) && Objects.equals(address, order.address) && Objects.equals(freightCost, order.freightCost);
+        return Objects.equals(id, order.id) && Objects.equals(moment, order.moment) && Objects.equals(subTotal, order.subTotal) && Objects.equals(total, order.total) && Objects.equals(payment, order.payment) && status == order.status && Objects.equals(user, order.user) && Objects.equals(delivery, order.delivery) && Objects.equals(items, order.items) && Objects.equals(address, order.address) && Objects.equals(freightCost, order.freightCost);
     }
 
     @Override

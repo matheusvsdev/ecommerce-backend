@@ -19,18 +19,18 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     @Query(nativeQuery = true, value = """
             SELECT * FROM (
             SELECT DISTINCT *
-            FROM products
-            INNER JOIN product_category ON products.id = product_category.product_id
-            WHERE (:categoryIds IS NULL OR product_category.category_id IN (:categoryIds))
-            AND LOWER(products.name) LIKE LOWER(CONCAT('%', :name, '%'))
+            FROM tb_product
+            INNER JOIN tb_product_category ON tb_products.id = tb_product_category.product_id
+            WHERE (:categoryIds IS NULL OR tb_product_category.category_id IN (:categoryIds))
+            AND LOWER(tb_product.name) LIKE LOWER(CONCAT('%', :name, '%'))
             ) AS tb_result
             """, countQuery = """
             SELECT COUNT(*) FROM (
             SELECT DISTINCT *
-            FROM products
-            INNER JOIN product_category ON products.id = product_category.product_id
-            WHERE (:categoryIds IS NULL OR product_category.category_id IN (:categoryIds))
-            AND LOWER(products.name) LIKE LOWER(CONCAT('%', :name, '%'))
+            FROM tb_product
+            INNER JOIN tb_product_category ON tb_product.id = tb_product_category.product_id
+            WHERE (:categoryIds IS NULL OR tb_product_category.category_id IN (:categoryIds))
+            AND LOWER(tb_product.name) LIKE LOWER(CONCAT('%', :name, '%'))
             ) AS tb_result
             """)
     Page<ProductProjection> searchProducts(List<Long> categoryIds, String name, Pageable pageable);
@@ -38,9 +38,9 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     @Query("SELECT obj FROM Product obj LEFT JOIN FETCH obj.categories")
     Page<Product> findAllProductsWithCategories(Pageable pageable);
 
-    @Query(nativeQuery = true, value = "SELECT products.id, img, name, description, quantity, price " +
-            "FROM products " +
-            "JOIN product_category ON products.id = product_category.product_id " +
-            "WHERE product_category.category_id = :categoryId")
+    @Query(nativeQuery = true, value = "SELECT tb_product.id, img, name, description, quantity, price " +
+            "FROM tb_product " +
+            "JOIN tb_product_category ON tb_product.id = tb_product_category.product_id " +
+            "WHERE tb_product_category.category_id = :categoryId")
     Page<Product> findProductsByCategoryId(@Param("categoryId")Long categoryId, Pageable pageable);
 }

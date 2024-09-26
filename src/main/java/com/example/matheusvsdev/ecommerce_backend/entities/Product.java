@@ -2,13 +2,10 @@ package com.example.matheusvsdev.ecommerce_backend.entities;
 
 import jakarta.persistence.*;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 @Entity
-@Table(name = "products")
+@Table(name = "tb_product")
 public class Product {
 
     @Id
@@ -23,12 +20,10 @@ public class Product {
     @Column(columnDefinition = "TEXT")
     private String img;
 
-    private Integer quantity;
-
     private Double price;
 
     @ManyToMany
-    @JoinTable(name = "product_category",
+    @JoinTable(name = "tb_product_category",
     joinColumns = @JoinColumn(name = "product_id"),
     inverseJoinColumns = @JoinColumn(name = "category_id"))
     private Set<Category> categories = new HashSet<>();
@@ -36,16 +31,25 @@ public class Product {
     @OneToMany(mappedBy = "id.product")
     private Set<OrderItem> items = new HashSet<>();
 
+    @OneToOne(mappedBy = "product", cascade = CascadeType.ALL)
+    private Inventory inventory;
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<InventoryMovement> inventoryMovements = new ArrayList<>();
+
+    private boolean available = true;
+
     public Product() {
     }
 
-    public Product(Long id, String name, String description, String img, Integer quantity, Double price) {
+    public Product(Long id, String name, String description, String img, Double price, boolean available, Inventory inventory) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.img = img;
-        this.quantity = quantity;
         this.price = price;
+        this.available = available;
+        this.inventory = inventory;
     }
 
     public Long getId() {
@@ -76,20 +80,28 @@ public class Product {
         this.img = img;
     }
 
-    public Integer getQuantity() {
-        return quantity;
-    }
-
-    public void setQuantity(Integer quantity) {
-        this.quantity = quantity;
-    }
-
     public Double getPrice() {
         return price;
     }
 
     public void setPrice(Double price) {
         this.price = price;
+    }
+
+    public boolean isAvailable() {
+        return available;
+    }
+
+    public void setAvailable(boolean available) {
+        this.available = available;
+    }
+
+    public Inventory getInventory() {
+        return inventory;
+    }
+
+    public void setInventory(Inventory inventory) {
+        this.inventory = inventory;
     }
 
     public Set<Category> getCategories() {
@@ -102,6 +114,21 @@ public class Product {
 
     public List<Order> getOrders() {
         return items.stream().map(x -> x.getOrder()).toList();
+    }
+
+    // Método para adicionar uma movimentação ao produto
+    public void addInventoryMovement(InventoryMovement movement) {
+        this.inventoryMovements.add(movement);
+        movement.setProduct(this);
+    }
+
+    // Getters e Setters para inventoryMovements
+    public List<InventoryMovement> getInventoryMovements() {
+        return inventoryMovements;
+    }
+
+    public void setInventoryMovements(List<InventoryMovement> inventoryMovements) {
+        this.inventoryMovements = inventoryMovements;
     }
 
     @Override

@@ -1,5 +1,6 @@
 package com.example.matheusvsdev.ecommerce_backend.controller;
 
+import com.example.matheusvsdev.ecommerce_backend.dto.InventoryDTO;
 import com.example.matheusvsdev.ecommerce_backend.dto.ProductDTO;
 import com.example.matheusvsdev.ecommerce_backend.projection.ProductProjection;
 import com.example.matheusvsdev.ecommerce_backend.service.ProductService;
@@ -25,7 +26,7 @@ public class ProductController {
 
     @PreAuthorize(value = "hasRole('ROLE_ADMIN')")
     @PostMapping
-    public ResponseEntity<ProductDTO> insert(@Valid  @RequestBody ProductDTO productDTO) {
+    public ResponseEntity<ProductDTO> insert(@Valid @RequestBody ProductDTO productDTO) {
         productDTO = productService.insertProduct(productDTO);
         URI uri = ServletUriComponentsBuilder
                 .fromCurrentRequest()

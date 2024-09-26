@@ -1,6 +1,6 @@
 package com.example.matheusvsdev.ecommerce_backend.entities;
 
-public enum DeliveryStatus {
+public enum ShippingStatus {
 
     PREPARANDO,
     A_CAMINHO,

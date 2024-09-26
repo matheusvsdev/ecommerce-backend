@@ -7,6 +7,8 @@ import com.example.matheusvsdev.ecommerce_backend.service.exceptions.ResourceNot
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -24,6 +26,9 @@ public class OrderService {
     private ProductRepository productRepository;
 
     @Autowired
+    private InventoryRepository inventoryRepository;
+
+    @Autowired
     private CartItemRepository cartItemRepository;
 
     @Autowired
@@ -39,48 +44,54 @@ public class OrderService {
     private CartService cartService;
 
     @Autowired
+    private InventoryService inventoryService;
+
+    @Autowired
     private DeliveryService deliveryService;
 
     @Autowired
     private EmailService emailService;
 
     @Transactional
-    public OrderResponseDTO placeOrderFromCart(OrderDTO orderDTO) {
+    public OrderDTO placeOrderFromCart(OrderDTO orderDTO) {
 
         Cart cart = cartService.findCartByAuthenticatedUser();
         cartService.validateCart(cart);
 
         Order order = new Order();
         order.setMoment(LocalDateTime.now());
-        order.setOrderStatus(OrderStatus.CONFIRMADO);
-
-        for (CartItem cartItem : cart.getItems()) {
-            OrderItem orderItem = new OrderItem(order, cartItem.getProduct(), cartItem.getQuantity(), cartItem.getPrice());
-            order.addItem(orderItem);
-        }
+        order.setStatus(OrderStatus.CONFIRMADO);
 
         User user = authService.authenticated();
         order.setUser(user);
 
-        Address address = addressRepository.findById(orderDTO.getEnderecoId()).get();
+        Address address = addressRepository.findById(orderDTO.getAddressId())
+                .orElseThrow(() -> new ResourceNotFoundException("Endereço não encontrado"));
         authService.validateSelfOrAdmin(address.getClient().getId());
 
         order.setAddress(address);
         address.getOrders().add(order);
 
-        Payment payment = createPayment(orderDTO.getPagamento());
-        order.setPayment(payment);
-        payment.setOrder(order);
+        for (CartItem cartItem : cart.getItems()) {
+            OrderItem orderItem = new OrderItem(order, cartItem.getProduct(), cartItem.getQuantity(), cartItem.getPrice());
+            order.addItem(orderItem);
 
-        order.setTotal(cart.getTotal());
+            inventoryService.updateStock(cartItem.getProduct().getId(), cartItem.getQuantity());
+        }
 
         Double freightCost = deliveryService.calculateFreight(address.getState());
         order.setFreightCost(freightCost);
 
-        Delivery delivery = createDelivery();
+        Shipping delivery = createDelivery();
         delivery.setFreightCost(freightCost);
         delivery.setOrder(order);
         order.setDelivery(delivery);
+
+        Payment payment = createPayment(orderDTO.getPayment());
+        order.setPayment(payment);
+        payment.setOrder(order);
+
+        order.setTotal(cart.getTotal());
 
         orderRepository.save(order);
 
@@ -95,7 +106,7 @@ public class OrderService {
         deliveryRepository.save(delivery);
         orderItemRepository.saveAll(order.getItems());
 
-        return new OrderResponseDTO(order);
+        return new OrderDTO(order);
     }
 
     @Transactional(readOnly = true)
@@ -123,15 +134,15 @@ public class OrderService {
     private Payment createPayment(PaymentDTO paymentDTO) {
         Payment payment = new Payment();
         payment.setPaymentMethod(paymentDTO.getPaymentMethod());
-        payment.setPaymentStatus(PaymentStatus.CONFIRMANDO_PAGAMENTO);
+        payment.setStatus(PaymentStatus.CONFIRMANDO_PAGAMENTO);
         return payment;
     }
 
-    private Delivery createDelivery() {
-        Delivery delivery = new Delivery();
-        delivery.setDeliveryStatus(DeliveryStatus.PREPARANDO);
-        delivery.setOrderUpdateDate(LocalDateTime.now());
-        delivery.setEstimatedDeliveryDate(LocalDateTime.now().plusDays(15));
+    private Shipping createDelivery() {
+        Shipping delivery = new Shipping();
+        delivery.setStatus(ShippingStatus.PREPARANDO);
+        delivery.setOrderUpdate(LocalDateTime.now());
+        delivery.setDeliveryTime(LocalDateTime.now().plusDays(15));
         return delivery;
     }
 }

@@ -11,47 +11,45 @@ public class OrderDTO {
 
     private LocalDateTime moment;
 
-    private OrderStatus statusPedido;
+    private OrderStatus status;
 
-    private List<OrderItemsDTO> items = new ArrayList<>();
+    private List<OrderItemDTO> items = new ArrayList<>();
 
-    private PaymentDTO pagamento;
+    private PaymentDTO payment;
 
-    private Long enderecoId;
+    private Long addressId;
 
-    private Delivery rastreio;
+    private Shipping shipping;
 
-    private Double valorItems;
+    private Double subTotal;
+
+    private Double freightCost;
 
     private Double total;
 
     private String user;
 
-    public OrderDTO(Long orderId, LocalDateTime moment, OrderStatus statusPedido, PaymentDTO pagamento, Long enderecoId, Delivery rastreio, Double valorItems, Double total, String user) {
+    public OrderDTO(Long orderId, PaymentDTO payment, String user, Long addressId) {
         this.orderId = orderId;
-        this.moment = moment;
-        this.statusPedido = statusPedido;
-        this.pagamento = pagamento;
-        this.enderecoId = enderecoId;
-        this.rastreio = rastreio;
-        this.valorItems = valorItems;
-        this.total = total;
+        this.payment = payment;
         this.user = user;
+        this.addressId = addressId;
     }
 
     public OrderDTO(Order entity) {
         orderId = entity.getId();
         user = entity.getUser().getFirstName() + " " + entity.getUser().getLastName();
         moment = entity.getMoment();
-        statusPedido = entity.getOrderStatus();
-        pagamento = new PaymentDTO(entity.getPayment().getPaymentMethod());
-        enderecoId = entity.getAddress().getId();
-        rastreio = entity.getDelivery();
-        valorItems = entity.getOrderedAmount();
+        status = entity.getStatus();
+        payment = new PaymentDTO(entity.getPayment().getPaymentMethod());
+        addressId = entity.getAddress().getId();
+        shipping = entity.getDelivery();
+        subTotal = entity.getSubTotal();
+        freightCost = entity.getFreightCost();
         total = entity.getTotal();
 
         for (OrderItem item : entity.getItems()) {
-            OrderItemsDTO itemDTO = new OrderItemsDTO(item);
+            OrderItemDTO itemDTO = new OrderItemDTO(item);
             items.add(itemDTO);
         }
     }
@@ -64,29 +62,32 @@ public class OrderDTO {
         return moment;
     }
 
-    public OrderStatus getStatusPedido() {
-        return statusPedido;
+    public OrderStatus getStatus() {
+        return status;
     }
 
-    public List<OrderItemsDTO> getItems() {
+    public List<OrderItemDTO> getItems() {
         return items;
     }
 
-    public PaymentDTO getPagamento() {
-        return pagamento;
+    public PaymentDTO getPayment() {
+        return payment;
     }
 
-
-    public Long getEnderecoId() {
-        return enderecoId;
+    public Long getAddressId() {
+        return addressId;
     }
 
-    public Delivery getRastreio() {
-        return rastreio;
+    public Shipping getShipping() {
+        return shipping;
     }
 
-    public Double getValorItems() {
-        return valorItems;
+    public Double getSubTotal() {
+        return subTotal;
+    }
+
+    public Double getFreightCost() {
+        return freightCost;
     }
 
     public Double getTotal() {

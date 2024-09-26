@@ -1,8 +1,8 @@
 package com.example.matheusvsdev.ecommerce_backend.service;
 
 import com.example.matheusvsdev.ecommerce_backend.dto.AddressDTO;
-import com.example.matheusvsdev.ecommerce_backend.dto.DeliveryDTO;
-import com.example.matheusvsdev.ecommerce_backend.dto.DeliveryInformationDTO;
+import com.example.matheusvsdev.ecommerce_backend.dto.ShippingDTO;
+import com.example.matheusvsdev.ecommerce_backend.dto.ShippingInformationDTO;
 import com.example.matheusvsdev.ecommerce_backend.entities.*;
 import com.example.matheusvsdev.ecommerce_backend.repository.AddressRepository;
 import com.example.matheusvsdev.ecommerce_backend.repository.DeliveryRepository;
@@ -24,48 +24,48 @@ public class DeliveryService {
     private DeliveryRepository deliveryRepository;
 
     @Transactional
-    public DeliveryDTO updateDeliveryStatus(Long id, DeliveryDTO dto) {
-        Delivery delivery = deliveryRepository.findById(id)
+    public ShippingDTO updateDeliveryStatus(Long id, ShippingDTO dto) {
+        Shipping delivery = deliveryRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Delivery não encontrado"));
 
-        if (dto.getDeliveryStatus() != null) {
-            delivery.setDeliveryStatus(dto.getDeliveryStatus());
+        if (dto.getStatus() != null) {
+            delivery.setStatus(dto.getStatus());
         }
 
-        if (dto.getDeliveryStatus() == DeliveryStatus.ENTREGUE) {
-            delivery.getOrder().setOrderStatus(OrderStatus.CONCLUIDO);
+        if (dto.getStatus() == ShippingStatus.ENTREGUE) {
+            delivery.getOrder().setStatus(OrderStatus.CONCLUIDO);
         }
 
-        if (dto.getDeliveryStatus() == DeliveryStatus.ENTREGA_NAO_EFETUADA) {
-            delivery.getOrder().setOrderStatus(OrderStatus.CANCELADO);
+        if (dto.getStatus() == ShippingStatus.ENTREGA_NAO_EFETUADA) {
+            delivery.getOrder().setStatus(OrderStatus.CANCELADO);
         }
 
-        if (dto.getEstimatedDeliveryDate() != null) {
-            delivery.setEstimatedDeliveryDate(dto.getEstimatedDeliveryDate());
+        if (dto.getDeliveryTime() != null) {
+            delivery.setDeliveryTime(dto.getDeliveryTime());
         }
 
-        delivery.setOrderUpdateDate(LocalDateTime.now());
+        delivery.setOrderUpdate(LocalDateTime.now());
 
         deliveryRepository.save(delivery);
 
-        return new DeliveryDTO(delivery);
+        return new ShippingDTO(delivery);
     }
 
     @Transactional
-    public DeliveryInformationDTO getDeliveryInformation(Long addressId) {
+    public ShippingInformationDTO getDeliveryInformation(Long addressId) {
 
         Address address = addressRepository.findById(addressId).get();
 
         Double freightCost = calculateFreight(address.getState());
 
-        Delivery delivery = new Delivery();
+        Shipping delivery = new Shipping();
 
         LocalDateTime estimatedDeliveryDate = LocalDateTime.now().plusDays(15);
 
-        delivery.setEstimatedDeliveryDate(estimatedDeliveryDate);
+        delivery.setDeliveryTime(estimatedDeliveryDate);
         delivery.setFreightCost(freightCost);
 
-        return new DeliveryInformationDTO(delivery, new AddressDTO(address));
+        return new ShippingInformationDTO(delivery, new AddressDTO(address));
     }
 
     private static final Double STANDARD_RATE = 0.015;
@@ -108,7 +108,7 @@ public class DeliveryService {
 
         freightCost = Math.round(freightCost * 100.0) / 100.0;
 
-        Delivery delivery = new Delivery();
+        Shipping delivery = new Shipping();
         delivery.setFreightCost(freightCost);
 
         deliveryRepository.save(delivery);

@@ -12,25 +12,23 @@ public class Payment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Enumerated(value = EnumType.STRING)
     private PaymentMethod paymentMethod;
 
-    @Enumerated(value = EnumType.STRING)
-    private PaymentStatus paymentStatus;
+    private PaymentStatus status;
 
     @OneToOne
     @MapsId
     private Order order;
 
-    private LocalDateTime paymentConfirmationDate;
+    private LocalDateTime paymentConfirmation;
 
     public Payment() {
     }
 
-    public Payment(Long id, PaymentMethod paymentMethod, PaymentStatus paymentStatus) {
+    public Payment(Long id, PaymentMethod paymentMethod, PaymentStatus status) {
         this.id = id;
         this.paymentMethod = paymentMethod;
-        this.paymentStatus = paymentStatus;
+        this.status = status;
     }
 
     public Payment(Order order) {
@@ -61,20 +59,20 @@ public class Payment {
         this.paymentMethod = paymentMethod;
     }
 
-    public PaymentStatus getPaymentStatus() {
-        return paymentStatus;
+    public PaymentStatus getStatus() {
+        return status;
     }
 
-    public void setPaymentStatus(PaymentStatus paymentStatus) {
-        this.paymentStatus = paymentStatus;
+    public void setStatus(PaymentStatus status) {
+        this.status = status;
     }
 
-    public LocalDateTime getPaymentConfirmationDate() {
-        return paymentConfirmationDate;
+    public LocalDateTime getPaymentConfirmation() {
+        return paymentConfirmation;
     }
 
-    public void setPaymentConfirmationDate(LocalDateTime paymentConfirmationDate) {
-        this.paymentConfirmationDate = paymentConfirmationDate;
+    public void setPaymentConfirmation(LocalDateTime paymentConfirmation) {
+        this.paymentConfirmation = paymentConfirmation;
     }
 
     @Override
@@ -83,7 +81,7 @@ public class Payment {
         if (o == null || getClass() != o.getClass()) return false;
 
         Payment payment = (Payment) o;
-        return Objects.equals(id, payment.id) && paymentMethod == payment.paymentMethod && paymentStatus == payment.paymentStatus && Objects.equals(order, payment.order) && Objects.equals(paymentConfirmationDate, payment.paymentConfirmationDate);
+        return Objects.equals(id, payment.id) && paymentMethod == payment.paymentMethod && status == payment.status && Objects.equals(order, payment.order) && Objects.equals(paymentConfirmation, payment.paymentConfirmation);
     }
 
     @Override

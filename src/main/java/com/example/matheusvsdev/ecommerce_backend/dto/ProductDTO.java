@@ -5,8 +5,7 @@ import com.example.matheusvsdev.ecommerce_backend.entities.Product;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -25,24 +24,26 @@ public class ProductDTO {
     @NotBlank(message = "Campo img não preenchido")
     private String img;
 
-    @Positive(message = "A quantidade dever ser positiva")
-    private Integer quantity;
-
     @Positive(message = "O preço dever ser positivo")
     private Double price;
 
-    private List<CategoryDTO> categories = new ArrayList<>();
+    private Set<CategoryDTO> categories = new HashSet<>();
+
+    private boolean available = true;
+
+    private InventoryDTO inventory;
 
     public ProductDTO() {
     }
 
-    public ProductDTO(Long id, String name, String description, String img, Integer quantity, Double price) {
+    public ProductDTO(Long id, String name, String description, String img, Double price, boolean available, InventoryDTO inventory) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.img = img;
-        this.quantity = quantity;
         this.price = price;
+        this.available = available;
+        this.inventory = inventory;
     }
 
     public ProductDTO(Product entity) {
@@ -50,11 +51,12 @@ public class ProductDTO {
         name = entity.getName();
         description = entity.getDescription();
         img = entity.getImg();
-        quantity = entity.getQuantity();
         price = entity.getPrice();
-        this.categories = entity.getCategories()
+        available = entity.isAvailable();
+        inventory = new InventoryDTO(entity.getInventory());
+        this.categories = new HashSet<>(entity.getCategories())
                 .stream().map(CategoryDTO::new)
-                .collect(Collectors.toList());
+                .collect(Collectors.toSet());
     }
 
     public ProductDTO(Product entity, Set<Category> categories) {
@@ -78,15 +80,23 @@ public class ProductDTO {
         return img;
     }
 
-    public Integer getQuantity() {
-        return quantity;
-    }
-
     public Double getPrice() {
         return price;
     }
 
-    public List<CategoryDTO> getCategories() {
+    public boolean isAvailable() {
+        return available;
+    }
+
+    public InventoryDTO getInventory() {
+        return inventory;
+    }
+
+    public void setInventory(InventoryDTO inventory) {
+        this.inventory = inventory;
+    }
+
+    public Set<CategoryDTO> getCategories() {
         return categories;
     }
 }
