@@ -7,8 +7,6 @@ import com.example.matheusvsdev.ecommerce_backend.service.exceptions.ResourceNot
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -23,13 +21,10 @@ public class OrderService {
     private DeliveryRepository deliveryRepository;
 
     @Autowired
-    private ProductRepository productRepository;
-
-    @Autowired
-    private InventoryRepository inventoryRepository;
-
-    @Autowired
     private CartItemRepository cartItemRepository;
+
+    @Autowired
+    private CartRepository cartRepository;
 
     @Autowired
     private OrderRepository orderRepository;
@@ -54,10 +49,16 @@ public class OrderService {
 
     @Transactional
     public OrderDTO placeOrderFromCart(OrderDTO orderDTO) {
-
         Cart cart = cartService.findCartByAuthenticatedUser();
         cartService.validateCart(cart);
 
+        Order order = createOrder(orderDTO, cart);
+        updateCartAfterOrder(cart);
+
+        return new OrderDTO(order);
+    }
+
+    private Order createOrder(OrderDTO orderDTO, Cart cart) {
         Order order = new Order();
         order.setMoment(LocalDateTime.now());
         order.setStatus(OrderStatus.CONFIRMADO);
@@ -65,10 +66,7 @@ public class OrderService {
         User user = authService.authenticated();
         order.setUser(user);
 
-        Address address = addressRepository.findById(orderDTO.getAddressId())
-                .orElseThrow(() -> new ResourceNotFoundException("Endereço não encontrado"));
-        authService.validateSelfOrAdmin(address.getClient().getId());
-
+        Address address = findAddress(orderDTO.getAddressId(), user);
         order.setAddress(address);
         address.getOrders().add(order);
 
@@ -79,34 +77,13 @@ public class OrderService {
             inventoryService.updateStock(cartItem.getProduct().getId(), cartItem.getQuantity());
         }
 
-        Double freightCost = deliveryService.calculateFreight(address.getState());
-        order.setFreightCost(freightCost);
-
-        Shipping delivery = createDelivery();
-        delivery.setFreightCost(freightCost);
-        delivery.setOrder(order);
-        order.setDelivery(delivery);
-
-        Payment payment = createPayment(orderDTO.getPayment());
-        order.setPayment(payment);
-        payment.setOrder(order);
+        setFreightAndDelivery(order, address);
+        setPayment(order, orderDTO.getPayment());
 
         order.setTotal(cart.getTotal());
-
         orderRepository.save(order);
 
-        for (CartItem cartItem : cart.getItems()) {
-            cartItemRepository.delete(cartItem);
-        }
-
-        cart.getItems().clear();
-        cart.setTotal(0.0);
-        cartService.updateCart(cart);
-
-        deliveryRepository.save(delivery);
-        orderItemRepository.saveAll(order.getItems());
-
-        return new OrderDTO(order);
+        return order;
     }
 
     @Transactional(readOnly = true)
@@ -144,5 +121,39 @@ public class OrderService {
         delivery.setOrderUpdate(LocalDateTime.now());
         delivery.setDeliveryTime(LocalDateTime.now().plusDays(15));
         return delivery;
+    }
+
+    private Address findAddress(Long addressId, User user) {
+        Address address = addressRepository.findById(addressId)
+                .orElseThrow(() -> new ResourceNotFoundException("Endereço não encontrado"));
+        authService.validateSelfOrAdmin(address.getClient().getId());
+        return address;
+    }
+
+    private void setFreightAndDelivery(Order order, Address address) {
+        Double freightCost = deliveryService.calculateFreight(address.getState());
+        order.setFreightCost(freightCost);
+
+        Shipping delivery = createDelivery();
+        delivery.setFreightCost(freightCost);
+        delivery.setOrder(order);
+        order.setDelivery(delivery);
+    }
+
+    private void setPayment(Order order, PaymentDTO paymentDTO) {
+        Payment payment = createPayment(paymentDTO);
+        order.setPayment(payment);
+        payment.setOrder(order);
+    }
+
+    private void updateCartAfterOrder(Cart cart) {
+        for (CartItem cartItem : cart.getItems()) {
+            cartItemRepository.delete(cartItem);
+        }
+
+        cart.getItems().clear();
+        cart.setTotal(0.0);
+
+        cartRepository.save(cart);
     }
 }

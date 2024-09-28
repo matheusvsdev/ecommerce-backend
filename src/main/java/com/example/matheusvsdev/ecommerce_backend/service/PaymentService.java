@@ -1,5 +1,6 @@
 package com.example.matheusvsdev.ecommerce_backend.service;
 
+import com.example.matheusvsdev.ecommerce_backend.dto.PaymentDTO;
 import com.example.matheusvsdev.ecommerce_backend.entities.*;
 import com.example.matheusvsdev.ecommerce_backend.repository.OrderRepository;
 import com.example.matheusvsdev.ecommerce_backend.service.exceptions.ResourceNotFoundException;

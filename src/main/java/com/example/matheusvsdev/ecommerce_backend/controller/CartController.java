@@ -30,11 +30,11 @@ public class CartController {
         return ResponseEntity.ok().body(cartList);
     }
 
-    @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @DeleteMapping("/remove/{productId}")
-    public ResponseEntity<CartDTO> removeItemFromCart(@PathVariable Long productId) {
-        CartDTO updatedCart = cartService.removetemToCart(productId);
-        return ResponseEntity.ok(updatedCart);
+    @PreAuthorize(value = "hasRole('ROLE_CLIENT')")
+    @PutMapping(value = "/{id}")
+    public ResponseEntity<CartDTO> update(@PathVariable Long id, @RequestParam int quantity) {
+        CartDTO cartDTO = cartService.updateCart(id, quantity);
+        return ResponseEntity.ok(cartDTO);
     }
 
     @PreAuthorize("hasRole('ROLE_CLIENT')")

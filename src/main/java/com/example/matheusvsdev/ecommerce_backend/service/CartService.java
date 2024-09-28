@@ -6,12 +6,15 @@ import com.example.matheusvsdev.ecommerce_backend.entities.*;
 import com.example.matheusvsdev.ecommerce_backend.repository.CartItemRepository;
 import com.example.matheusvsdev.ecommerce_backend.repository.CartRepository;
 import com.example.matheusvsdev.ecommerce_backend.repository.ProductRepository;
+import com.example.matheusvsdev.ecommerce_backend.service.exceptions.IllegalArgumentException;
 import com.example.matheusvsdev.ecommerce_backend.service.exceptions.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -36,8 +39,13 @@ public class CartService {
         Cart cart = cartRepository.findByUserId(user.getId())
                 .orElseGet(() -> createNewCartForUser(user));
 
+        removeUnavailableItems(cart);
+
         Product product = productRepository.findById(cartItemDTO.getProductId())
                 .orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado"));
+        if (!product.isAvailable()) {
+            throw new IllegalArgumentException("Produto esgotado, avisaremos quando chegar");
+        }
 
         Optional<CartItem> cartItem = cart.getItems().stream()
                 .filter(x -> x.getProduct().getId().equals(cartItemDTO.getProductId()))
@@ -61,20 +69,22 @@ public class CartService {
     }
 
     @Transactional
-    public CartDTO removetemToCart(Long productId) {
+    public CartDTO updateCart(Long productId, int newQuantity) {
         User user = authService.authenticated();
 
         Cart cart = cartRepository.findByUserId(user.getId())
-                .orElseThrow(() -> new ResourceNotFoundException("Adicione itens primeiro"));
+                .orElseThrow(() -> new ResourceNotFoundException("Carrinho não encontrado para o usuário"));
 
-        Optional<CartItem> cartItem = cart.getItems().stream()
-                .filter(x -> x.getProduct().getId().equals(productId))
-                .findFirst();
+        removeUnavailableItems(cart);
 
-        CartItem item = cartItem
-                .orElseThrow(() -> new ResourceNotFoundException("Item não encontrado"));
+        CartItem cartItem = findCartItem(cart, productId);
 
-        cart.removeItem(item);
+        if (newQuantity == 0) {
+            removeCartItem(cart, cartItem);
+        } else {
+            updateCartItemQuantity(cartItem, productId, newQuantity);
+        }
+
         cart.setTotal(cart.getTotal());
 
         cart.setTotal(cart.getTotal());
@@ -89,7 +99,7 @@ public class CartService {
         User user = authService.authenticated();
 
         Cart cart = cartRepository.findByUserId(user.getId())
-                .orElseThrow(() -> new ResourceNotFoundException("Adicione itens primeiro"));
+                .orElseThrow(() -> new ResourceNotFoundException("Seu carrinho está vazio"));
 
         cart.clearItems();
 
@@ -104,7 +114,15 @@ public class CartService {
     public CartDTO getCartByUser() {
         User user = authService.authenticated();
         Cart cart = cartRepository.findByUser(user)
-                .orElseThrow(() -> new ResourceNotFoundException("Adicione itens primeiro"));
+                .orElseThrow(() -> new ResourceNotFoundException("Seu carrinho está vazio"));
+
+        cart.getItems().removeIf(cartItem -> {
+            if (!cartItem.getProduct().isAvailable()) {
+                return true;
+            }
+            return false;
+        });
+
         return new CartDTO(cart);
     }
 
@@ -122,9 +140,11 @@ public class CartService {
         if (cart == null || cart.getItems().isEmpty()) {
             throw new IllegalArgumentException("O carrinho está vazio ou não existe.");
         }
-    }
+        if (cart.getItems().isEmpty() || cart.getItems().removeIf(cartItem -> !cartItem.getProduct().isAvailable())) {
+            throw new IllegalArgumentException("Algo deu errado, parece que alguns itens foram retirados do seu carrinho porque ficaram esgotados.");
+        }
 
-    public void updateCart(Cart cart) {
+        cartRepository.save(cart);
         cartRepository.save(cart);
     }
 
@@ -134,4 +154,37 @@ public class CartService {
         return cartRepository.findByUser(user)
                 .orElseThrow(() -> new RuntimeException("Carrinho não encontrado para o usuário"));
     }
+
+    private void removeCartItem(Cart cart, CartItem cartItem) {
+        cart.removeItem(cartItem);
+        cartItemRepository.delete(cartItem);
+    }
+
+    private void removeUnavailableItems(Cart cart) {
+        cart.getItems().removeIf(item -> {
+            if (!item.getProduct().isAvailable()) {
+                return true; // Remove o item se estiver esgotado
+            }
+            return false;
+        });
+    }
+
+    private CartItem findCartItem(Cart cart, Long productId) {
+        return cart.getItems().stream()
+                .filter(item -> item.getProduct().getId().equals(productId))
+                .findFirst()
+                .orElseThrow(() -> new ResourceNotFoundException("Item não encontrado no carrinho"));
+    }
+
+    private void updateCartItemQuantity(CartItem cartItem, Long productId, int newQuantity) {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado"));
+
+        if (!product.isAvailable()) {
+            removeCartItem(cartItem.getCart(), cartItem);
+        } else {
+            cartItem.setQuantity(newQuantity);
+        }
+    }
 }
+

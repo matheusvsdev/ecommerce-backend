@@ -3,6 +3,7 @@ package com.example.matheusvsdev.ecommerce_backend.controller.handlers;
 import com.example.matheusvsdev.ecommerce_backend.dto.CustomError;
 import com.example.matheusvsdev.ecommerce_backend.dto.ValidationError;
 import com.example.matheusvsdev.ecommerce_backend.service.exceptions.ArgumentAlreadyExistsException;
+import com.example.matheusvsdev.ecommerce_backend.service.exceptions.IllegalArgumentException;
 import com.example.matheusvsdev.ecommerce_backend.service.exceptions.ResourceNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -51,6 +52,14 @@ public class ControllerExceptions {
                 , status.value()
                 , e.getMessage()
                 , request.getRequestURI());
+
+        return ResponseEntity.status(status).body(error);
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<CustomError> handleIllegalArgument(IllegalArgumentException e, HttpServletRequest request) {
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+        CustomError error = new CustomError(Instant.now(), status.value(), e.getMessage(), request.getRequestURI());
 
         return ResponseEntity.status(status).body(error);
     }

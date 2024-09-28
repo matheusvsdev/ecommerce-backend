@@ -29,32 +29,30 @@ public class InventoryService {
 
     @Transactional
     public InventoryDTO replenishStock(Long id, InventoryDTO dto) {
-        try {
-            Inventory inventory = inventoryRepository.findByProductId(id);
-            InventoryMovement movement = new InventoryMovement();
-            movement.setProduct(inventory.getProduct());
-            movement.setMovementType(MovementType.ENTRADA.name());
-            movement.setQuantity(dto.getQuantity());
 
-            int newStock = inventory.getQuantity() + dto.getQuantity();
+        Inventory inventory = inventoryRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado"));
+        InventoryMovement movement = new InventoryMovement();
+        movement.setProduct(inventory.getProduct());
+        movement.setMovementType(MovementType.ENTRADA.name());
+        movement.setQuantity(dto.getQuantity());
 
-            movement.setRemainingStock(newStock);
-            movement.setMoment(LocalDateTime.now());
+        int newStock = inventory.getQuantity() + dto.getQuantity();
 
-            inventoryMovementRepository.save(movement);
+        movement.setRemainingStock(newStock);
+        movement.setMoment(LocalDateTime.now());
 
-            inventory.setQuantity(newStock);
+        inventoryMovementRepository.save(movement);
 
-            inventory.setOutputQuantity(0);
+        inventory.setQuantity(newStock);
 
-            inventory.updateAvailability();
+        inventory.setOutputQuantity(0);
 
-            inventory = inventoryRepository.save(inventory);
+        inventory.updateAvailability();
 
-            return new InventoryDTO(inventory);
-        } catch (EntityNotFoundException e) {
-            throw new ResourceNotFoundException("Produto não encontrado");
-        }
+        inventory = inventoryRepository.save(inventory);
+
+        return new InventoryDTO(inventory);
     }
 
     @Transactional
@@ -63,7 +61,7 @@ public class InventoryService {
 
         // Verifica se a quantidade é suficiente
         if (inventory.getQuantity() < quantity) {
-            throw new IllegalArgumentException("Quantidade insuficiente para o produto: " + inventory.getProduct().getName());
+            throw new IllegalArgumentException("Quantidade insuficiente para o produto");
         }
 
         inventory.setQuantity(inventory.getQuantity() - quantity);

@@ -70,12 +70,11 @@ public class Cart {
         items.add(item);
     }
 
-    // Método que limpa todos os itens do carrinho
     public void removeItem(CartItem item) {
         items.remove(item);
-        item.setCart(null);
     }
 
+    // Método que limpa todos os itens do carrinho
     public void clearItems() {
         this.items.clear();
     }
