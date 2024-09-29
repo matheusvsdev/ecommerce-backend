@@ -17,21 +17,17 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     boolean existsByName(String name);
 
     @Query(nativeQuery = true, value = """
-            SELECT * FROM (
-            SELECT DISTINCT *
-            FROM tb_product
-            INNER JOIN tb_product_category ON tb_products.id = tb_product_category.product_id
-            WHERE (:categoryIds IS NULL OR tb_product_category.category_id IN (:categoryIds))
-            AND LOWER(tb_product.name) LIKE LOWER(CONCAT('%', :name, '%'))
-            ) AS tb_result
-            """, countQuery = """
-            SELECT COUNT(*) FROM (
-            SELECT DISTINCT *
+            SELECT tb_product.id, tb_product.img, tb_product.name, tb_product.description, tb_product.price
             FROM tb_product
             INNER JOIN tb_product_category ON tb_product.id = tb_product_category.product_id
             WHERE (:categoryIds IS NULL OR tb_product_category.category_id IN (:categoryIds))
             AND LOWER(tb_product.name) LIKE LOWER(CONCAT('%', :name, '%'))
-            ) AS tb_result
+            """, countQuery = """
+            SELECT COUNT(DISTINCT tb_product.id)
+            FROM tb_product
+            INNER JOIN tb_product_category ON tb_product.id = tb_product_category.product_id
+            WHERE (:categoryIds IS NULL OR tb_product_category.category_id IN (:categoryIds))
+            AND LOWER(tb_product.name) LIKE LOWER(CONCAT('%', :name, '%'))
             """)
     Page<ProductProjection> searchProducts(List<Long> categoryIds, String name, Pageable pageable);
 

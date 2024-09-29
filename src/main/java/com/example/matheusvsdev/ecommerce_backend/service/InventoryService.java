@@ -7,8 +7,8 @@ import com.example.matheusvsdev.ecommerce_backend.entities.MovementType;
 import com.example.matheusvsdev.ecommerce_backend.repository.InventoryMovementRepository;
 import com.example.matheusvsdev.ecommerce_backend.repository.InventoryRepository;
 import com.example.matheusvsdev.ecommerce_backend.repository.ProductRepository;
+import com.example.matheusvsdev.ecommerce_backend.service.exceptions.IllegalArgumentException;
 import com.example.matheusvsdev.ecommerce_backend.service.exceptions.ResourceNotFoundException;
-import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,26 +29,10 @@ public class InventoryService {
 
     @Transactional
     public InventoryDTO replenishStock(Long id, InventoryDTO dto) {
-
         Inventory inventory = inventoryRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado"));
-        InventoryMovement movement = new InventoryMovement();
-        movement.setProduct(inventory.getProduct());
-        movement.setMovementType(MovementType.ENTRADA.name());
-        movement.setQuantity(dto.getQuantity());
 
-        int newStock = inventory.getQuantity() + dto.getQuantity();
-
-        movement.setRemainingStock(newStock);
-        movement.setMoment(LocalDateTime.now());
-
-        inventoryMovementRepository.save(movement);
-
-        inventory.setQuantity(newStock);
-
-        inventory.setOutputQuantity(0);
-
-        inventory.updateAvailability();
+        addStockMovement(inventory, dto);
 
         inventory = inventoryRepository.save(inventory);
 
@@ -61,7 +45,7 @@ public class InventoryService {
 
         // Verifica se a quantidade é suficiente
         if (inventory.getQuantity() < quantity) {
-            throw new IllegalArgumentException("Quantidade insuficiente para o produto");
+            throw new IllegalArgumentException("Quantidade indisponível em estoque");
         }
 
         inventory.setQuantity(inventory.getQuantity() - quantity);
@@ -79,5 +63,25 @@ public class InventoryService {
         inventory.updateAvailability();
 
         inventoryRepository.save(inventory);
+    }
+
+    public void addStockMovement(Inventory inventory, InventoryDTO dto) {
+        InventoryMovement movement = new InventoryMovement();
+        movement.setProduct(inventory.getProduct());
+        movement.setMovementType(MovementType.ENTRADA.name());
+        movement.setQuantity(dto.getQuantity());
+
+        int newStock = inventory.getQuantity() + dto.getQuantity();
+
+        movement.setRemainingStock(newStock);
+        movement.setMoment(LocalDateTime.now());
+
+        inventoryMovementRepository.save(movement);
+
+        inventory.setQuantity(newStock);
+
+        inventory.setOutputQuantity(0);
+
+        inventory.updateAvailability();
     }
 }

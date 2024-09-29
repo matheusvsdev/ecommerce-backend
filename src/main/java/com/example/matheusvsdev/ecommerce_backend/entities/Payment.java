@@ -20,27 +20,25 @@ public class Payment {
     @MapsId
     private Order order;
 
-    private LocalDateTime paymentConfirmation;
+    private LocalDateTime paymentDate;
+
+    private String transactionId;
+
+    private String token;
+
+    private Integer amount;
 
     public Payment() {
     }
 
-    public Payment(Long id, PaymentMethod paymentMethod, PaymentStatus status) {
+    public Payment(Long id, PaymentMethod paymentMethod, PaymentStatus status, LocalDateTime paymentDate, String transactionId, String token, Integer amount) {
         this.id = id;
         this.paymentMethod = paymentMethod;
         this.status = status;
-    }
-
-    public Payment(Order order) {
-        this.order = order;
-    }
-
-    public Order getOrder() {
-        return order;
-    }
-
-    public void setOrder(Order order) {
-        this.order = order;
+        this.paymentDate = paymentDate;
+        this.transactionId = transactionId;
+        this.token = token;
+        this.amount = amount;
     }
 
     public Long getId() {
@@ -67,12 +65,44 @@ public class Payment {
         this.status = status;
     }
 
-    public LocalDateTime getPaymentConfirmation() {
-        return paymentConfirmation;
+    public Order getOrder() {
+        return order;
     }
 
-    public void setPaymentConfirmation(LocalDateTime paymentConfirmation) {
-        this.paymentConfirmation = paymentConfirmation;
+    public void setOrder(Order order) {
+        this.order = order;
+    }
+
+    public LocalDateTime getPaymentDate() {
+        return paymentDate;
+    }
+
+    public void setPaymentDate(LocalDateTime paymentDate) {
+        this.paymentDate = paymentDate;
+    }
+
+    public String getTransactionId() {
+        return transactionId;
+    }
+
+    public void setTransactionId(String transactionId) {
+        this.transactionId = transactionId;
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
+    }
+
+    public Integer getAmount() {
+        return amount;
+    }
+
+    public void setAmount(Integer amount) {
+        this.amount = amount;
     }
 
     @Override
@@ -81,7 +111,7 @@ public class Payment {
         if (o == null || getClass() != o.getClass()) return false;
 
         Payment payment = (Payment) o;
-        return Objects.equals(id, payment.id) && paymentMethod == payment.paymentMethod && status == payment.status && Objects.equals(order, payment.order) && Objects.equals(paymentConfirmation, payment.paymentConfirmation);
+        return Objects.equals(id, payment.id);
     }
 
     @Override

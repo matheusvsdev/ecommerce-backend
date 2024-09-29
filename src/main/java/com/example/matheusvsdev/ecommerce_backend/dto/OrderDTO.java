@@ -41,7 +41,7 @@ public class OrderDTO {
         user = entity.getUser().getFirstName() + " " + entity.getUser().getLastName();
         moment = entity.getMoment();
         status = entity.getStatus();
-        payment = new PaymentDTO(entity.getPayment().getPaymentMethod());
+        payment = new PaymentDTO(entity.getPayment());
         addressId = entity.getAddress().getId();
         shipping = entity.getDelivery();
         subTotal = entity.getSubTotal();

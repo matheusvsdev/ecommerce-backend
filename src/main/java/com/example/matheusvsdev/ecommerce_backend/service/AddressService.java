@@ -28,13 +28,7 @@ public class AddressService {
         User user = authService.authenticated();
 
         Address address = new Address();
-        address.setCep(addressDTO.getCep());
-        address.setState(addressDTO.getState());
-        address.setCity(addressDTO.getCity());
-        address.setNeighborhood(addressDTO.getNeighborhood());
-        address.setStreet(addressDTO.getStreet());
-        address.setNumber(addressDTO.getNumber());
-        address.setComplement(addressDTO.getComplement());
+        assigningDtoToEntities(address, addressDTO);
         address.setClient(user);
 
         addressRepository.save(address);
@@ -94,11 +88,12 @@ public class AddressService {
     }
 
     public void assigningDtoToEntities(Address address, AddressDTO dto) {
+        address.setState(dto.getState());
+        address.setCep(dto.getCep());
         address.setCity(dto.getCity());
         address.setNeighborhood(dto.getNeighborhood());
         address.setStreet(dto.getStreet());
         address.setNumber(dto.getNumber());
         address.setComplement(dto.getComplement());
-        address.setCep(dto.getCep());
     }
 }

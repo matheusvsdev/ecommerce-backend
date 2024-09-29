@@ -33,11 +33,11 @@ public class DeliveryService {
         }
 
         if (dto.getStatus() == ShippingStatus.ENTREGUE) {
-            delivery.getOrder().setStatus(OrderStatus.CONCLUIDO);
+            delivery.getOrder().setStatus(OrderStatus.CONFIRMED);
         }
 
         if (dto.getStatus() == ShippingStatus.ENTREGA_NAO_EFETUADA) {
-            delivery.getOrder().setStatus(OrderStatus.CANCELADO);
+            delivery.getOrder().setStatus(OrderStatus.FAILED);
         }
 
         if (dto.getDeliveryTime() != null) {

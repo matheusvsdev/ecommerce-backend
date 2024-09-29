@@ -6,6 +6,5 @@ public interface ProductProjection {
     String getName();
     String getDescription();
     String getImg();
-    Integer getQuantity();
     Double getPrice();
 }

@@ -1,8 +1,9 @@
 package com.example.matheusvsdev.ecommerce_backend.controller;
 
 import com.example.matheusvsdev.ecommerce_backend.dto.OrderDTO;
+import com.example.matheusvsdev.ecommerce_backend.dto.OrderResponseDTO;
 import com.example.matheusvsdev.ecommerce_backend.service.OrderService;
-import com.example.matheusvsdev.ecommerce_backend.service.PaymentService;
+import com.example.matheusvsdev.ecommerce_backend.service.StripePaymentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,11 +19,11 @@ public class OrderController {
     private OrderService orderService;
 
     @Autowired
-    private PaymentService paymentService;
+    private StripePaymentService paymentService;
 
     @PostMapping("/checkout")
     public ResponseEntity<OrderDTO> checkout(@RequestBody OrderDTO dto) {
-        OrderDTO order = orderService.placeOrderFromCart(dto);
+        OrderDTO order = orderService.createOrder(dto);
         URI uri = ServletUriComponentsBuilder
                 .fromCurrentRequest()
                 .path("/{id}")
@@ -41,12 +42,5 @@ public class OrderController {
     public ResponseEntity<List<OrderDTO>> findAll() {
         List<OrderDTO> orderList = orderService.findAll();
         return ResponseEntity.ok(orderList);
-    }
-
-    @PostMapping(value = "/payment/{id}")
-    public ResponseEntity<String> processPayment(@PathVariable Long id) {
-        paymentService.processPayment(id);
-
-        return ResponseEntity.ok("Pagamento processado e e-mail enviado com a nota fiscal.");
     }
 }

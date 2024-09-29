@@ -59,17 +59,16 @@ public class Order {
 
 
     public Double getSubTotal() {
-        double sum = 0.0;
+        double subTotal = 0.0;
         for (OrderItem itemDTO : items) {
-            sum += itemDTO.getSubTotal();
+            subTotal += itemDTO.getSubTotal();
         }
-        subTotal = sum;
-        return Math.round(subTotal * 100.0) / 100.0;
+
+        return subTotal;
     }
 
     public Double getTotal() {
         total = getSubTotal() + freightCost;
-
         return Math.round(total * 100.0) / 100.0;
     }
 
@@ -136,7 +135,7 @@ public class Order {
 
     public Double getFreightCost() {
         if (getSubTotal() >= 800.0) {
-            freightCost = 0.0;
+            return 0.0;
         }
         return freightCost;
     }

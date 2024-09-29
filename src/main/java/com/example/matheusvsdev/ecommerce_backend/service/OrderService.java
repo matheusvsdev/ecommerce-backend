@@ -4,10 +4,14 @@ import com.example.matheusvsdev.ecommerce_backend.dto.*;
 import com.example.matheusvsdev.ecommerce_backend.entities.*;
 import com.example.matheusvsdev.ecommerce_backend.repository.*;
 import com.example.matheusvsdev.ecommerce_backend.service.exceptions.ResourceNotFoundException;
+import com.stripe.exception.StripeException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -36,6 +40,9 @@ public class OrderService {
     private AuthService authService;
 
     @Autowired
+    private AddressService addressService;
+
+    @Autowired
     private CartService cartService;
 
     @Autowired
@@ -45,23 +52,27 @@ public class OrderService {
     private DeliveryService deliveryService;
 
     @Autowired
+    private StripePaymentService stripePaymentService;
+
+    @Autowired
     private EmailService emailService;
 
     @Transactional
-    public OrderDTO placeOrderFromCart(OrderDTO orderDTO) {
+    public OrderDTO createOrder(OrderDTO orderDTO) {
         Cart cart = cartService.findCartByAuthenticatedUser();
         cartService.validateCart(cart);
 
-        Order order = createOrder(orderDTO, cart);
+        Order order = insertDataIntoTheOrder(orderDTO, cart);
+
         updateCartAfterOrder(cart);
 
         return new OrderDTO(order);
     }
 
-    private Order createOrder(OrderDTO orderDTO, Cart cart) {
+    private Order insertDataIntoTheOrder(OrderDTO orderDTO, Cart cart) {
         Order order = new Order();
         order.setMoment(LocalDateTime.now());
-        order.setStatus(OrderStatus.CONFIRMADO);
+        order.setStatus(OrderStatus.PROCESSING);
 
         User user = authService.authenticated();
         order.setUser(user);
@@ -70,17 +81,21 @@ public class OrderService {
         order.setAddress(address);
         address.getOrders().add(order);
 
-        for (CartItem cartItem : cart.getItems()) {
-            OrderItem orderItem = new OrderItem(order, cartItem.getProduct(), cartItem.getQuantity(), cartItem.getPrice());
-            order.addItem(orderItem);
-
-            inventoryService.updateStock(cartItem.getProduct().getId(), cartItem.getQuantity());
-        }
+        addItemsToOrder(cart, order);
 
         setFreightAndDelivery(order, address);
-        setPayment(order, orderDTO.getPayment());
 
-        order.setTotal(cart.getTotal());
+        order.setTotal(order.getTotal());
+        order.setFreightCost(order.getFreightCost());
+
+        processPayment(order, orderDTO.getPayment());
+
+        if (order.getPayment().getStatus() == PaymentStatus.SUCCESS) {
+            order.setStatus(OrderStatus.CONFIRMED);
+        } else {
+            order.setStatus(OrderStatus.FAILED);
+        }
+
         orderRepository.save(order);
 
         return order;
@@ -108,11 +123,40 @@ public class OrderService {
         return orders.stream().map(x -> new OrderDTO(x)).collect(Collectors.toList());
     }
 
-    private Payment createPayment(PaymentDTO paymentDTO) {
-        Payment payment = new Payment();
-        payment.setPaymentMethod(paymentDTO.getPaymentMethod());
-        payment.setStatus(PaymentStatus.CONFIRMANDO_PAGAMENTO);
-        return payment;
+    private void addItemsToOrder(Cart cart, Order order) {
+        for (CartItem cartItem : cart.getItems()) {
+            OrderItem orderItem = new OrderItem(order, cartItem.getProduct(), cartItem.getQuantity(), cartItem.getPrice());
+            order.addItem(orderItem);
+
+            inventoryService.updateStock(cartItem.getProduct().getId(), cartItem.getQuantity());
+        }
+    }
+
+    private void processPayment(Order order, PaymentDTO paymentDTO) {
+        try {
+            // Configurar o pagamento
+            Payment payment = new Payment();
+            payment.setOrder(order);
+            payment.setPaymentMethod(paymentDTO.getPaymentMethod());
+            payment.setStatus(PaymentStatus.PENDING);
+            order.setPayment(payment);
+
+            Double totalOrder = order.getTotal();
+            int amount = (int) (totalOrder * 100);
+
+            String token = paymentDTO.getToken();
+            String chargeId = stripePaymentService.createCharge(token, amount);
+
+            // Atualizar o pagamento com o resultado do Stripe
+            payment.setTransactionId(chargeId);
+            payment.setToken(token);
+            payment.setAmount(amount);
+            payment.setPaymentDate(LocalDateTime.now());
+            payment.setStatus(PaymentStatus.SUCCESS);
+        } catch (StripeException e) {
+            // Caso ocorra erro no pagamento
+            order.getPayment().setStatus(PaymentStatus.FAILED);
+        }
     }
 
     private Shipping createDelivery() {
@@ -138,12 +182,7 @@ public class OrderService {
         delivery.setFreightCost(freightCost);
         delivery.setOrder(order);
         order.setDelivery(delivery);
-    }
 
-    private void setPayment(Order order, PaymentDTO paymentDTO) {
-        Payment payment = createPayment(paymentDTO);
-        order.setPayment(payment);
-        payment.setOrder(order);
     }
 
     private void updateCartAfterOrder(Cart cart) {

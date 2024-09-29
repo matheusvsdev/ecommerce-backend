@@ -1,6 +1,9 @@
 package com.example.matheusvsdev.ecommerce_backend.entities;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 
 import java.time.LocalDateTime;
 
@@ -15,7 +18,7 @@ public class Inventory {
     @OneToOne
     @JoinColumn(name = "product_id", referencedColumnName = "id")
     private Product product;
-
+    
     private Integer quantity;
 
     private Integer outputQuantity = 0;

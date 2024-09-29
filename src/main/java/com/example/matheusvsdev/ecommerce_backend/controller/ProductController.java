@@ -26,7 +26,7 @@ public class ProductController {
 
     @PreAuthorize(value = "hasRole('ROLE_ADMIN')")
     @PostMapping
-    public ResponseEntity<ProductDTO> insert(@Valid @RequestBody ProductDTO productDTO) {
+    public ResponseEntity<ProductDTO> insert(@RequestBody ProductDTO productDTO) {
         productDTO = productService.insertProduct(productDTO);
         URI uri = ServletUriComponentsBuilder
                 .fromCurrentRequest()

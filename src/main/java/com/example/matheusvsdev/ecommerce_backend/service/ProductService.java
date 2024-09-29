@@ -10,17 +10,20 @@ import com.example.matheusvsdev.ecommerce_backend.projection.ProductProjection;
 import com.example.matheusvsdev.ecommerce_backend.repository.CategoryRepository;
 import com.example.matheusvsdev.ecommerce_backend.repository.InventoryRepository;
 import com.example.matheusvsdev.ecommerce_backend.repository.ProductRepository;
-import com.example.matheusvsdev.ecommerce_backend.service.exceptions.ArgumentAlreadyExistsException;
-import com.example.matheusvsdev.ecommerce_backend.service.exceptions.DatabaseException;
-import com.example.matheusvsdev.ecommerce_backend.service.exceptions.ResourceNotFoundException;
+import com.example.matheusvsdev.ecommerce_backend.service.exceptions.*;
+import com.example.matheusvsdev.ecommerce_backend.service.exceptions.IllegalArgumentException;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -39,18 +42,13 @@ public class ProductService {
 
     @Transactional
     public ProductDTO insertProduct(ProductDTO productDTO) {
-        if (productRepository.existsByName(productDTO.getName())) {
-            throw new ArgumentAlreadyExistsException("Já existe produto cadastrado com esse nome");
-        }
+
         Product product = new Product();
         assigningDtoToEntities(product, productDTO);
 
-        Inventory inventory = new Inventory();
-        inventory.setProduct(product);
-        inventory.setQuantity(productDTO.getInventory().getQuantity());
-        inventory.setUpdateTime(LocalDateTime.now());
+        productNameValidation(productDTO);
 
-        product.setInventory(inventory);
+        insertingProductIntoStock(product, productDTO);
 
         productRepository.save(product);
 
@@ -104,6 +102,21 @@ public class ProductService {
         } catch (DataIntegrityViolationException e) {
             throw new DatabaseException("Falha de integridade referencial");
         }
+    }
+
+    public void productNameValidation(ProductDTO productDTO) {
+        if (productRepository.existsByName(productDTO.getName())) {
+            throw new ArgumentAlreadyExistsException("Já existe produto cadastrado com esse nome");
+        }
+    }
+
+    public void insertingProductIntoStock(Product product, ProductDTO productDTO) {
+        Inventory inventory = new Inventory();
+        inventory.setProduct(product);
+        inventory.setQuantity(productDTO.getInventory().getQuantity());
+        inventory.setUpdateTime(LocalDateTime.now());
+
+        product.setInventory(inventory);
     }
 
     public void assigningDtoToEntities(Product entity, ProductDTO dto) {

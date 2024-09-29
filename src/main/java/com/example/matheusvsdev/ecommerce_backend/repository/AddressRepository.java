@@ -11,5 +11,6 @@ public interface AddressRepository extends JpaRepository<Address, Long> {
 
     List<Address> findByClientId(Long clientId);
 
+
     List<Address> findByClient(User user);
 }

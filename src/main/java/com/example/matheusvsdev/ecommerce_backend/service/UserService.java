@@ -42,34 +42,15 @@ public class UserService implements UserDetailsService {
 
     @Transactional
     public UserDTO createUser(UserDTO userDTO) {
-        if (userRepository.existsByCpf(userDTO.getCpf())) {
-            throw new ArgumentAlreadyExistsException("CPF já cadastrado");
-        }
-        if (userRepository.existsByEmail(userDTO.getEmail())) {
-            throw new ArgumentAlreadyExistsException("Email já cadastrado");
-        }
-
         User user = new User();
         assigningDtoToEntities(user, userDTO);
 
-        user.getRoles().clear();
+        emailAndCpfValidation(userDTO);
 
-        if (userDTO.getRoles() == null || userDTO.getRoles().isEmpty()) {
-            Role defaultRole = roleRepository.findByAuthority("ROLE_CLIENT");
-            user.getRoles().add(defaultRole);
-
-            emailService.userCreationEmailBody(user);
-
-        } else {
-            for (RoleDTO roleDTO : userDTO.getRoles()) {
-                Role role = roleRepository.findByAuthority(roleDTO.getAuthority());
-                if (role != null) {
-                    user.getRoles().add(role);
-                }
-            }
-        }
+        addUserRole(user, userDTO);
 
         user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
+
         user = userRepository.save(user);
 
         return new UserDTO(user);
@@ -116,20 +97,44 @@ public class UserService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-
         List<UserDetailsProjection> result = userRepository.searchUserAndRolesByEmail(username);
         if (result.size() == 0) {
             throw new UsernameNotFoundException("Email not found");
         }
-
         User user = new User();
         user.setEmail(result.get(0).getUsername());
         user.setPassword(result.get(0).getPassword());
         for (UserDetailsProjection projection : result) {
             user.addRole(new Role(projection.getRoleId(), projection.getAuthority()));
         }
-
         return user;
+    }
+
+    public void emailAndCpfValidation(UserDTO userDTO) {
+        if (userRepository.existsByCpf(userDTO.getCpf())) {
+            throw new ArgumentAlreadyExistsException("CPF já cadastrado");
+        }
+        if (userRepository.existsByEmail(userDTO.getEmail())) {
+            throw new ArgumentAlreadyExistsException("Email já cadastrado");
+        }
+    }
+
+    public void addUserRole(User user, UserDTO userDTO) {
+
+        user.getRoles().clear();
+        if (userDTO.getRoles() == null || userDTO.getRoles().isEmpty()) {
+            Role defaultRole = roleRepository.findByAuthority("ROLE_CLIENT");
+            user.getRoles().add(defaultRole);
+
+            emailService.userCreationEmailBody(user);
+        } else {
+            for (RoleDTO roleDTO : userDTO.getRoles()) {
+                Role role = roleRepository.findByAuthority(roleDTO.getAuthority());
+                if (role != null) {
+                    user.getRoles().add(role);
+                }
+            }
+        }
     }
 
     public void assigningDtoToEntities(User entity, UserDTO dto) {
