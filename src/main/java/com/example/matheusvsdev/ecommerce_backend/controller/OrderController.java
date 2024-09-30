@@ -22,8 +22,8 @@ public class OrderController {
     private StripePaymentService paymentService;
 
     @PostMapping("/checkout")
-    public ResponseEntity<OrderDTO> checkout(@RequestBody OrderDTO dto) {
-        OrderDTO order = orderService.createOrder(dto);
+    public ResponseEntity<OrderResponseDTO> checkout(@RequestBody OrderDTO dto) {
+        OrderResponseDTO order = orderService.createOrder(dto);
         URI uri = ServletUriComponentsBuilder
                 .fromCurrentRequest()
                 .path("/{id}")

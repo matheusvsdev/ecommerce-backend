@@ -21,7 +21,7 @@ public class Shipping {
 
     private Double freightCost;
 
-    @OneToOne(mappedBy = "delivery")
+    @OneToOne
     @JsonIgnore
     private Order order;
 
@@ -80,6 +80,9 @@ public class Shipping {
     }
 
     public Double getFreightCost() {
+        if (order.getSubTotal() >= 800.00) {
+            freightCost = 0.0;
+        }
         return freightCost;
     }
 

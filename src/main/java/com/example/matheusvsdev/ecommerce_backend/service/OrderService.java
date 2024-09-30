@@ -58,15 +58,17 @@ public class OrderService {
     private EmailService emailService;
 
     @Transactional
-    public OrderDTO createOrder(OrderDTO orderDTO) {
+    public OrderResponseDTO createOrder(OrderDTO orderDTO) {
         Cart cart = cartService.findCartByAuthenticatedUser();
         cartService.validateCart(cart);
 
         Order order = insertDataIntoTheOrder(orderDTO, cart);
 
+        orderItemRepository.saveAll(order.getItems());
+
         updateCartAfterOrder(cart);
 
-        return new OrderDTO(order);
+        return new OrderResponseDTO(order);
     }
 
     private Order insertDataIntoTheOrder(OrderDTO orderDTO, Cart cart) {
@@ -85,8 +87,9 @@ public class OrderService {
 
         setFreightAndDelivery(order, address);
 
-        order.setTotal(order.getTotal());
+        order.setSubTotal(order.getSubTotal());
         order.setFreightCost(order.getFreightCost());
+        order.setTotal(order.getTotal());
 
         processPayment(order, orderDTO.getPayment());
 
@@ -120,7 +123,7 @@ public class OrderService {
         } else {
             orders = orderRepository.findByUserId(user.getId());
         }
-        return orders.stream().map(x -> new OrderDTO(x)).collect(Collectors.toList());
+        return orders.stream().map(OrderDTO::new).collect(Collectors.toList());
     }
 
     private void addItemsToOrder(Cart cart, Order order) {
@@ -181,6 +184,7 @@ public class OrderService {
         Shipping delivery = createDelivery();
         delivery.setFreightCost(freightCost);
         delivery.setOrder(order);
+
         order.setDelivery(delivery);
 
     }

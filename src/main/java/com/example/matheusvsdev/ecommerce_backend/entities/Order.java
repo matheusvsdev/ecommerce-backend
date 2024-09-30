@@ -32,8 +32,7 @@ public class Order {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "delivery_id")
+    @OneToOne(mappedBy = "order", cascade = CascadeType.ALL)
     private Shipping delivery;
 
     @OneToMany(mappedBy = "id.order")
@@ -68,12 +67,18 @@ public class Order {
     }
 
     public Double getTotal() {
-        total = getSubTotal() + freightCost;
-        return Math.round(total * 100.0) / 100.0;
+        if (total == null) {
+            total = Math.round((getSubTotal() + freightCost) * 100.0) / 100.0;
+        }
+        return total;
     }
 
     public void setTotal(Double total) {
         this.total = total;
+    }
+
+    public void setSubTotal(Double subTotal) {
+        this.subTotal = subTotal;
     }
 
     public Long getId() {

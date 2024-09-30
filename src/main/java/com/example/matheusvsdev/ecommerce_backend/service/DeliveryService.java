@@ -2,7 +2,6 @@ package com.example.matheusvsdev.ecommerce_backend.service;
 
 import com.example.matheusvsdev.ecommerce_backend.dto.AddressDTO;
 import com.example.matheusvsdev.ecommerce_backend.dto.ShippingDTO;
-import com.example.matheusvsdev.ecommerce_backend.dto.ShippingInformationDTO;
 import com.example.matheusvsdev.ecommerce_backend.entities.*;
 import com.example.matheusvsdev.ecommerce_backend.repository.AddressRepository;
 import com.example.matheusvsdev.ecommerce_backend.repository.DeliveryRepository;
@@ -30,14 +29,11 @@ public class DeliveryService {
 
         if (dto.getStatus() != null) {
             delivery.setStatus(dto.getStatus());
-        }
-
-        if (dto.getStatus() == ShippingStatus.ENTREGUE) {
-            delivery.getOrder().setStatus(OrderStatus.CONFIRMED);
-        }
-
-        if (dto.getStatus() == ShippingStatus.ENTREGA_NAO_EFETUADA) {
-            delivery.getOrder().setStatus(OrderStatus.FAILED);
+            if (dto.getStatus() == ShippingStatus.ENTREGUE) {
+                delivery.getOrder().setStatus(OrderStatus.COMPLETED);
+            } else if (dto.getStatus() == ShippingStatus.ENTREGA_NAO_EFETUADA) {
+                delivery.getOrder().setStatus(OrderStatus.FAILED);
+            }
         }
 
         if (dto.getDeliveryTime() != null) {
@@ -49,23 +45,6 @@ public class DeliveryService {
         deliveryRepository.save(delivery);
 
         return new ShippingDTO(delivery);
-    }
-
-    @Transactional
-    public ShippingInformationDTO getDeliveryInformation(Long addressId) {
-
-        Address address = addressRepository.findById(addressId).get();
-
-        Double freightCost = calculateFreight(address.getState());
-
-        Shipping delivery = new Shipping();
-
-        LocalDateTime estimatedDeliveryDate = LocalDateTime.now().plusDays(15);
-
-        delivery.setDeliveryTime(estimatedDeliveryDate);
-        delivery.setFreightCost(freightCost);
-
-        return new ShippingInformationDTO(delivery, new AddressDTO(address));
     }
 
     private static final Double STANDARD_RATE = 0.015;
@@ -104,15 +83,9 @@ public class DeliveryService {
     public Double calculateFreight(State clientState) {
 
         Double distance = DISTANCE_MAP.get(clientState);
-        Double freightCost = distance * STANDARD_RATE;
-
-        freightCost = Math.round(freightCost * 100.0) / 100.0;
-
-        Shipping delivery = new Shipping();
-        delivery.setFreightCost(freightCost);
-
-        deliveryRepository.save(delivery);
-
-        return delivery.getFreightCost();
+        if (distance == null) {
+            throw new IllegalArgumentException("Estado desconhecido");
+        }
+        return Math.round(distance * STANDARD_RATE * 100.0) / 100.0;
     }
 }
