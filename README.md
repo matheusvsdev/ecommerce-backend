@@ -2,12 +2,12 @@
 
 Este projeto de e-commerce foi desenvolvido para estudo e para compor meu portfólio. Ele abrange toda a lógica e API, incluindo:
 
-- **Usuários**: Gerenciamento de clientes e administradores.
+- **Usuários**: Gerenciamento de clientes e administradores, com envio de e-mail na criação de usuários.
 - **Produtos**: Cadastro, visualização e gerenciamento de produtos.
 - **Carrinho de Compras**: Funcionalidade para adicionar, remover e visualizar itens no carrinho.
 - **Endereços**: Gerenciamento de endereços de entrega.
 - **Frete e Entregas**: Cálculo de frete e gerenciamento de datas de entrega.
-- **Pedidos**: Funcionalidade para efetuar e gerenciar pedidos.
+- **Pedidos**: Funcionalidade para efetuar e gerenciar pedidos, com envio de e-mail de confirmação ao realizar um pedido.
 - **Integração com API de Pagamento**: Implementação com Stripe para processamento de pagamentos.
 - **Segurança**: Implementação de segurança com OAuth2 e BCrypt.
 
