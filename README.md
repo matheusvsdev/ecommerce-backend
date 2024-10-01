@@ -14,6 +14,45 @@ Este projeto de e-commerce foi desenvolvido para estudo e para compor meu portf�
 
 O projeto está em andamento, e toda colaboração é bem-vinda!
 
+### Exemplo de Consulta Personalizada no Repositório
+
+Abaixo está um exemplo de como utilizamos a anotação `@Query` para criar uma consulta personalizada no repositório de produtos. Essa consulta permite buscar produtos com base em categorias e em uma string de pesquisa, realizando a filtragem de forma eficiente.
+```
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+
+@Repository
+public interface ProductRepository extends JpaRepository<Product, Long> {
+
+    @Query(nativeQuery = true, value = """
+            SELECT tb_product.id, tb_product.img, tb_product.name, tb_product.description, tb_product.price
+            FROM tb_product
+            INNER JOIN tb_product_category ON tb_product.id = tb_product_category.product_id
+            WHERE (:categoryIds IS NULL OR tb_product_category.category_id IN (:categoryIds))
+            AND LOWER(tb_product.name) LIKE LOWER(CONCAT('%', :name, '%'))
+            """, countQuery = """
+            SELECT COUNT(DISTINCT tb_product.id)
+            FROM tb_product
+            INNER JOIN tb_product_category ON tb_product.id = tb_product_category.product_id
+            WHERE (:categoryIds IS NULL OR tb_product_category.category_id IN (:categoryIds))
+            AND LOWER(tb_product.name) LIKE LOWER(CONCAT('%', :name, '%'))
+            """)
+    Page<ProductProjection> searchProducts(List<Long> categoryIds, String name, Pageable pageable);
+}
+```
+- **@Query:** Utiliza-se a anotação @Query para definir uma consulta SQL nativa, permitindo a busca de produtos de forma flexível.**
+- **Parâmetros:**
+  
+  - **:categoryIds:** filtra produtos por uma lista de IDs de categorias. Se for NULL, essa condição é ignorada.
+  
+  - **:name:** faz uma busca no nome do produto que não é sensível a maiúsculas e minúsculas, permitindo a pesquisa parcial.
+  - **Paginação:** O método retorna uma Page<ProductProjection>, possibilitando a implementação de paginação para uma melhor experiência do usuário ao navegar pelos produtos.
+  
 ## Tecnologias Utilizadas
 
 - **Java**
