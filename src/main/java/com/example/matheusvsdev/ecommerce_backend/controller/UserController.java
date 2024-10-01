@@ -1,8 +1,12 @@
 package com.example.matheusvsdev.ecommerce_backend.controller;
 
+import com.example.matheusvsdev.ecommerce_backend.dto.UpdateUserDTO;
 import com.example.matheusvsdev.ecommerce_backend.dto.UserDTO;
+import com.example.matheusvsdev.ecommerce_backend.service.UpdateOwnUserService;
 import com.example.matheusvsdev.ecommerce_backend.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -20,6 +24,9 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private UpdateOwnUserService updateOwnUserService;
 
     @PostMapping
     public ResponseEntity<UserDTO> createUser(@Valid  @RequestBody UserDTO client) {
@@ -47,10 +54,17 @@ public class UserController {
         return ResponseEntity.ok().body(dto);
     }
 
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_CLIENT')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PutMapping(value = "/{id}")
     public ResponseEntity<UserDTO> update(@PathVariable Long id, @Valid @RequestBody UserDTO dto) {
         UserDTO newDto = userService.update(id, dto);
+        return ResponseEntity.ok().body(newDto);
+    }
+
+    @PreAuthorize("hasRole('CLIENT')")
+    @PutMapping(value = "/me")
+    public ResponseEntity<UserDTO> updateSelf(@Valid @RequestBody UpdateUserDTO dto) {
+        UserDTO newDto = updateOwnUserService.updateSelf(dto);
         return ResponseEntity.ok().body(newDto);
     }
 
@@ -58,6 +72,13 @@ public class UserController {
     @DeleteMapping(value = "/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         userService.delete(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    @DeleteMapping(value = "/me/delete")
+    public ResponseEntity<Void> deleteSelf() {
+        updateOwnUserService.inactiveAccount();
         return ResponseEntity.noContent().build();
     }
 }

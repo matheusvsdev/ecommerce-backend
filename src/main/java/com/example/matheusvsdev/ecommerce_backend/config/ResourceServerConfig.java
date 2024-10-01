@@ -47,6 +47,7 @@ public class ResourceServerConfig {
 		http.authorizeHttpRequests(authorize -> authorize.anyRequest().permitAll()); // Permite todas as requisições e travadas por autorização de usuário
 		http.oauth2ResourceServer(oauth2ResourceServer -> oauth2ResourceServer.jwt(Customizer.withDefaults())); // Configura JWT
 		http.cors(cors -> cors.configurationSource(corsConfigurationSource())); // Configuração CORS
+
 		return http.build();
 	}
 

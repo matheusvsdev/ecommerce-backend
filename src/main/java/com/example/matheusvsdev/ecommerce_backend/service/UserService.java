@@ -15,7 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -73,6 +72,7 @@ public class UserService implements UserDetailsService {
 
     @Transactional
     public UserDTO update(Long id, UserDTO dto) {
+
         try {
             User entity = userRepository.getReferenceById(id);
             assigningDtoToEntities(entity, dto);
@@ -96,13 +96,8 @@ public class UserService implements UserDetailsService {
         }
     }
 
-    public boolean isUsernameOwner(Long userId, String username) {
-        Optional<User> user = userRepository.findById(userId);
-        return user.isPresent() && user.get().getUsername().equals(username);
-    }
-
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException{
         List<UserDetailsProjection> result = userRepository.searchUserAndRolesByEmail(username);
         if (result.size() == 0) {
             throw new UsernameNotFoundException("Email not found");
@@ -110,6 +105,11 @@ public class UserService implements UserDetailsService {
         User user = new User();
         user.setEmail(result.get(0).getUsername());
         user.setPassword(result.get(0).getPassword());
+
+        Boolean isActive = result.get(0).getActive();
+        if (isActive == null || !isActive) {
+            throw new UsernameNotFoundException("Conta inativa. Para reativar, acessar o campo de Suporte.");
+        }
         for (UserDetailsProjection projection : result) {
             user.addRole(new Role(projection.getRoleId(), projection.getAuthority()));
         }

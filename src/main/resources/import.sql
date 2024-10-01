@@ -1,4 +1,4 @@
-INSERT INTO tb_user (first_name, last_name, birth_date, cpf, phone, email, password) VALUES ('Matheus', 'Viccari', '1997-03-15', '721.838.222.11', '82991668033', 'matheusvaldevino1997@gmail.com', '$2a$10$hPMeOCmAfe3aT1P3mD11AOBfA.aGemQIdKsySHevGbbJL1on1Bi1i');
+INSERT INTO tb_user (first_name, last_name, birth_date, cpf, phone, email, password, active) VALUES ('Matheus', 'Viccari', '1997-03-15', '721.838.222.11', '82991668033', 'matheusvaldevino1997@gmail.com', '$2a$10$hPMeOCmAfe3aT1P3mD11AOBfA.aGemQIdKsySHevGbbJL1on1Bi1i', true);
 INSERT INTO tb_user (first_name, last_name, birth_date, cpf, phone, email, password) VALUES ('José', 'Vilar', '1985-07-02', '101.479.321.09', '82991366013', 'matheusvaldevino1997@outlook.com', '$2a$10$hPMeOCmAfe3aT1P3mD11AOBfA.aGemQIdKsySHevGbbJL1on1Bi1i');
 INSERT INTO tb_user (first_name, last_name, birth_date, cpf, phone, email, password) VALUES ('Aline', 'Pinosa', '1998-05-10', '231.170.872.33', '82991668033', 'matheusvaldevino@icloud.com', '$2a$10$hPMeOCmAfe3aT1P3mD11AOBfA.aGemQIdKsySHevGbbJL1on1Bi1i');
 

@@ -22,6 +22,9 @@ public class User implements UserDetails {
 
     private LocalDate birthDate;
 
+    @Column(nullable = false)
+    private Boolean active = true;
+
     // Relacionamento um-para-um com o carrinho do usuário
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     private Cart cart;
@@ -89,6 +92,14 @@ public class User implements UserDetails {
 
     public void setBirthDate(LocalDate birthDate) {
         this.birthDate = birthDate;
+    }
+
+    public Boolean isActive() {
+        return active;
+    }
+
+    public void setActive(Boolean active) {
+        this.active = active;
     }
 
     public String getCpf() {
