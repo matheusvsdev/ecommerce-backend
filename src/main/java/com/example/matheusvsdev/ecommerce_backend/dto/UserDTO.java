@@ -2,7 +2,6 @@ package com.example.matheusvsdev.ecommerce_backend.dto;
 
 import com.example.matheusvsdev.ecommerce_backend.entities.User;
 import jakarta.validation.constraints.*;
-import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
 import java.util.HashSet;

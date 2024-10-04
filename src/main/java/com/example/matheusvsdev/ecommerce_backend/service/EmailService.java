@@ -18,10 +18,17 @@ public class EmailService {
     @Value("${spring.mail.username}")
     private String emailFrom;
 
+    @Value("${email.enabled:true}")
+    private boolean emailEnabled;
+
     @Autowired
     private JavaMailSender emailSender;
 
     public void sendEmail(String to, String subject, String body) {
+        if (!emailEnabled) {
+            // Se o envio de e-mails estiver desabilitado, sair do método
+            return;
+        }
         try{
             SimpleMailMessage message = new SimpleMailMessage();
             message.setFrom(emailFrom);

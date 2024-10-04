@@ -66,6 +66,17 @@
 			<artifactId>spring-security-oauth2-resource-server</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>io.rest-assured</groupId>
+			<artifactId>rest-assured</artifactId>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>com.googlecode.json-simple</groupId>
+			<artifactId>json-simple</artifactId>
+			<version>1.1.1</version>
+		</dependency>
+		<dependency>
 			<groupId>com.stripe</groupId>
 			<artifactId>stripe-java</artifactId>
 			<version>26.5.1</version>
@@ -82,6 +93,47 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-resources-plugin</artifactId>
 				<version>3.1.0</version> <!--$NO-MVN-MAN-VER$ -->
+			</plugin>
+			<plugin>
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId>
+				<version>0.8.10</version>
+				<configuration>
+					<excludes>
+						<exclude>
+							com/devsuperior/dscommerce/DscommerceApplication.class</exclude>
+						<exclude>
+							com/devsuperior/dscommerce/config/**</exclude>
+						<exclude>
+							com/devsuperior/dscommerce/entities/**</exclude>
+						<exclude>
+							com/devsuperior/dscommerce/dto/**</exclude>
+						<exclude>
+							com/devsuperior/dscommerce/controllers/handlers/**</exclude>
+						<exclude>
+							com/devsuperior/dscommerce/services/exceptions/**</exclude>
+						<exclude>
+							com/devsuperior/dscommerce/util/**</exclude>
+						<exclude>
+							com/devsuperior/dscommerce/controllers/**</exclude>s </excludes>
+				</configuration>
+				<executions>
+					<execution>
+						<goals>
+							<goal>prepare-agent</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>jacoco-report</id>
+						<phase>prepare-package</phase>
+						<goals>
+							<goal>report</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>target/jacoco-report</outputDirectory>
+						</configuration>
+					</execution>
+				</executions>
 			</plugin>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
