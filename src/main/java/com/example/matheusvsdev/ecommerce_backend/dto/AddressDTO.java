@@ -3,6 +3,7 @@ package com.example.matheusvsdev.ecommerce_backend.dto;
 import com.example.matheusvsdev.ecommerce_backend.entities.Address;
 import com.example.matheusvsdev.ecommerce_backend.entities.State;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 public class AddressDTO {
 
@@ -10,7 +11,7 @@ public class AddressDTO {
 
     private State state;
 
-    @NotBlank(message = "Campo obrigatório")
+    @NotBlank(message = "Campo requerido")
     private String neighborhood, street, number, city, cep;
 
     private String complement;

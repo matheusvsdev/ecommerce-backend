@@ -40,7 +40,6 @@ public class AddressService {
     public AddressDTO findById(Long id) {
         Address address = addressRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Endereço não encontrado"));
-
         return new AddressDTO(address);
     }
 

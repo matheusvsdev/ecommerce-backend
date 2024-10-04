@@ -22,7 +22,7 @@ public class AuthService {
 	@Autowired
 	private EmailService emailService;
 
-	protected User authenticated() {
+	public User authenticated() {
 		Authentication authenticator = SecurityContextHolder.getContext().getAuthentication();
 		Jwt jwt = (Jwt) authenticator.getPrincipal();
 		String username = jwt.getClaim("username");

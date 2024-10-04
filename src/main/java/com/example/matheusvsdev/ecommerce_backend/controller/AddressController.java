@@ -12,7 +12,7 @@ import java.net.URI;
 import java.util.List;
 
 @RestController
-@RequestMapping(value = "address")
+@RequestMapping(value = "/address")
 public class AddressController {
 
     @Autowired
@@ -38,12 +38,10 @@ public class AddressController {
         return ResponseEntity.ok(cartList);
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping(value = "/{id}")
     private ResponseEntity<AddressDTO> findById(@PathVariable Long id) {
         AddressDTO address = addressService.findById(id);
-
-        return ResponseEntity.ok(address);
+        return ResponseEntity.ok().body(address);
     }
 
     @PreAuthorize("hasRole('ROLE_CLIENT')")

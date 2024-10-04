@@ -4,9 +4,7 @@ import com.example.matheusvsdev.ecommerce_backend.dto.UpdateUserDTO;
 import com.example.matheusvsdev.ecommerce_backend.dto.UserDTO;
 import com.example.matheusvsdev.ecommerce_backend.service.UpdateOwnUserService;
 import com.example.matheusvsdev.ecommerce_backend.service.UserService;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
-import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -14,9 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
 import java.net.URI;
-import java.security.Principal;
 
 @RestController
 @RequestMapping(value = "/users")

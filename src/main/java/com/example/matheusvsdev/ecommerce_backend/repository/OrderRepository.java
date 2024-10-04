@@ -9,5 +9,10 @@ import java.util.List;
 @Repository
 public interface OrderRepository extends JpaRepository<Order, Long> {
 
+    /*SELECT o.*, p.status AS payment_status, p.payment_method
+    FROM tb_order o
+    JOIN tb_payment p ON o.id = p.order_id
+    WHERE CAST(o.moment AS DATE) = '2024-10-02';*/
+
     List<Order> findByUserId(Long userId);
 }
