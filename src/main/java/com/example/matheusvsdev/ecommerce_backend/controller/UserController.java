@@ -1,9 +1,11 @@
 package com.example.matheusvsdev.ecommerce_backend.controller;
 
+import com.example.matheusvsdev.ecommerce_backend.docs.UserControllerDocs;
 import com.example.matheusvsdev.ecommerce_backend.dto.UpdateUserDTO;
 import com.example.matheusvsdev.ecommerce_backend.dto.UserDTO;
 import com.example.matheusvsdev.ecommerce_backend.service.UpdateOwnUserService;
 import com.example.matheusvsdev.ecommerce_backend.service.UserService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -16,7 +18,8 @@ import java.net.URI;
 
 @RestController
 @RequestMapping(value = "/users")
-public class UserController {
+@Tag(name = "User Controller", description = "Operações relacionadas aos usuários")
+public class UserController implements UserControllerDocs {
 
     @Autowired
     private UserService userService;
