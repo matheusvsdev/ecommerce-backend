@@ -107,7 +107,7 @@ public class UserService implements UserDetailsService {
         user.setPassword(result.get(0).getPassword());
 
         Boolean isActive = result.get(0).getActive();
-        if (isActive == null || !isActive) {
+        if (!isActive) {
             throw new UsernameNotFoundException("Conta inativa. Para reativar, acessar o campo de Suporte.");
         }
         for (UserDetailsProjection projection : result) {

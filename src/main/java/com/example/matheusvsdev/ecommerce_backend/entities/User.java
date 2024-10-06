@@ -143,7 +143,9 @@ public class User implements UserDetails {
         cart.setUser(this);
     }
 
-
+    public void setRoles(Set<Role> roles) {
+        this.roles = roles;
+    }
 
     public List<Address> getAddress() {
         return address;

@@ -1,25 +1,25 @@
-package com.example.matheusvsdev.ecommerce_backend.services;
+package com.example.matheusvsdev.ecommerce_backend.service;
 
+import com.example.matheusvsdev.ecommerce_backend.dto.RoleDTO;
 import com.example.matheusvsdev.ecommerce_backend.dto.UserDTO;
 import com.example.matheusvsdev.ecommerce_backend.entities.Role;
 import com.example.matheusvsdev.ecommerce_backend.entities.User;
 import com.example.matheusvsdev.ecommerce_backend.projection.UserDetailsProjection;
 import com.example.matheusvsdev.ecommerce_backend.repository.RoleRepository;
 import com.example.matheusvsdev.ecommerce_backend.repository.UserRepository;
-import com.example.matheusvsdev.ecommerce_backend.service.AuthService;
-import com.example.matheusvsdev.ecommerce_backend.service.EmailService;
-import com.example.matheusvsdev.ecommerce_backend.service.UserService;
 import com.example.matheusvsdev.ecommerce_backend.service.exceptions.ArgumentAlreadyExistsException;
 import com.example.matheusvsdev.ecommerce_backend.service.exceptions.DatabaseException;
 import com.example.matheusvsdev.ecommerce_backend.service.exceptions.ResourceNotFoundException;
 import com.example.matheusvsdev.ecommerce_backend.tests.UserDetailsFactory;
 import com.example.matheusvsdev.ecommerce_backend.tests.UserFactory;
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -31,9 +31,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -58,6 +56,9 @@ public class UserServiceTests {
     @Mock
     private PasswordEncoder passwordEncoder;
 
+    @MockBean
+    private StripePaymentService stripePaymentService;
+
     private String existingUsername, nonExistingUsername;
     private User user;
     private List<UserDetailsProjection> userDetails;
@@ -76,12 +77,52 @@ public class UserServiceTests {
         Mockito.when(userRepository.searchUserAndRolesByEmail(existingUsername)).thenReturn(userDetails);
         Mockito.when(userRepository.searchUserAndRolesByEmail(nonExistingUsername)).thenReturn(new ArrayList<>());
 
+        UserDetailsProjection inactiveUserProjection = Mockito.mock(UserDetailsProjection.class);
+        Mockito.when(inactiveUserProjection.getUsername()).thenReturn(existingUsername);
+        Mockito.when(inactiveUserProjection.getPassword()).thenReturn("encodedPassword");
+        Mockito.when(inactiveUserProjection.getActive()).thenReturn(false);
+
+        List<UserDetailsProjection> inactiveUserList = List.of(inactiveUserProjection);
+        Mockito.when(userRepository.searchUserAndRolesByEmail("inactiveUser@gmail.com")).thenReturn(inactiveUserList);
+
         Role defaultRole = new Role(1L, "ROLE_CLIENT");
         Mockito.when(roleRepository.findByAuthority("ROLE_CLIENT")).thenReturn(defaultRole);
 
         Mockito.doNothing().when(emailService).userCreationEmailBody(Mockito.any(User.class));
 
         Mockito.when(passwordEncoder.encode(Mockito.any(CharSequence.class))).thenReturn("encodedPassword");
+    }
+
+    @Test
+    public void addUserRoleShouldAssignDefaultRoleWhenRolesAreNull() {
+        // Cenário: UserDTO com roles como null
+        UserDTO userDTO = new UserDTO();
+        userDTO.setRoles(null); // Define roles como null
+
+        // Simulando o comportamento do roleRepository para "ROLE_CLIENT"
+        Mockito.when(roleRepository.findByAuthority("ROLE_CLIENT")).thenReturn(new Role(1L, "ROLE_CLIENT"));
+
+        // Chama o método a ser testado
+        userService.addUserRole(user, userDTO);
+
+        // Verifica se o role padrão foi adicionado
+        assertTrue(user.getRoles().contains(new Role(1L, "ROLE_CLIENT")));
+    }
+
+    @Test
+    public void addUserRoleShouldAssignDefaultRoleWhenRolesAreEmpty() {
+        // Cenário: UserDTO com uma lista de roles vazia
+        UserDTO userDTO = new UserDTO();
+        userDTO.setRoles(new HashSet<>()); // Define roles como uma coleção vazia
+
+        // Simulando o comportamento do roleRepository para "ROLE_CLIENT"
+        Mockito.when(roleRepository.findByAuthority("ROLE_CLIENT")).thenReturn(new Role(1L, "ROLE_CLIENT"));
+
+        // Chama o método a ser testado
+        userService.addUserRole(user, userDTO);
+
+        // Verifica se o role padrão foi adicionado
+        assertTrue(user.getRoles().contains(new Role(1L, "ROLE_CLIENT")));
     }
 
     @Test
@@ -96,6 +137,13 @@ public class UserServiceTests {
     public void loadUserByUsernameShouldThrowUsernameNotFoundExceptionWhenUserDoesNotExist() {
         assertThrows(UsernameNotFoundException.class, () -> {
             userService.loadUserByUsername(nonExistingUsername);
+        });
+    }
+
+    @Test
+    public void loadUserByUsernameShouldThrowUsernameNotFoundExceptionWhenUserDoesNotActive() {
+        assertThrows(UsernameNotFoundException.class, () -> {
+            userService.loadUserByUsername("inactiveUser@gmail.com");
         });
     }
 
@@ -230,7 +278,7 @@ public class UserServiceTests {
         Long nonExistingId = 100L;
         UserDTO dto = new UserDTO();
 
-        Mockito.when(userRepository.getReferenceById(nonExistingId)).thenThrow(ResourceNotFoundException.class);
+        Mockito.when(userRepository.getReferenceById(nonExistingId)).thenThrow(EntityNotFoundException.class);
 
         assertThrows(ResourceNotFoundException.class, () -> {
             userService.update(nonExistingId, dto);

@@ -101,21 +101,21 @@
 				<configuration>
 					<excludes>
 						<exclude>
-							com/devsuperior/dscommerce/DscommerceApplication.class</exclude>
+							com/example/matheusvsdev/ecommerce_backend/EcommerceApplication.class</exclude>
 						<exclude>
-							com/devsuperior/dscommerce/config/**</exclude>
+							com/example/matheusvsdev/ecommerce_backend/config/**</exclude>
 						<exclude>
-							com/devsuperior/dscommerce/entities/**</exclude>
+							com/example/matheusvsdev/ecommerce_backend/entities/**</exclude>
 						<exclude>
-							com/devsuperior/dscommerce/dto/**</exclude>
+							com/example/matheusvsdev/ecommerce_backend/dto/**</exclude>
 						<exclude>
-							com/devsuperior/dscommerce/controllers/handlers/**</exclude>
+							com/example/matheusvsdev/ecommerce_backend/controller/handlers/**</exclude>
 						<exclude>
-							com/devsuperior/dscommerce/services/exceptions/**</exclude>
+							com/example/matheusvsdev/ecommerce_backend/service/exceptions/**</exclude>
 						<exclude>
-							com/devsuperior/dscommerce/util/**</exclude>
+							com/example/matheusvsdev/ecommerce_backend/util/**</exclude>
 						<exclude>
-							com/devsuperior/dscommerce/controllers/**</exclude>s </excludes>
+							com/example/matheusvsdev/ecommerce_backend/controller/**</exclude>s </excludes>
 				</configuration>
 				<executions>
 					<execution>
