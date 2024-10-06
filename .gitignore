@@ -1,12 +1,11 @@
 HELP.md
-
-# Arquivos e pastas comuns
-.DS_Store
-
 target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
+
+# Arquivos e pastas comuns
+.DS_Store
 
 ### STS ###
 .apt_generated
