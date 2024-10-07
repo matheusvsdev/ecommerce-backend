@@ -1,13 +1,13 @@
 package com.example.matheusvsdev.ecommerce_backend.dto;
 
-import com.example.matheusvsdev.ecommerce_backend.entities.Order;
-import com.example.matheusvsdev.ecommerce_backend.entities.OrderItem;
-import com.example.matheusvsdev.ecommerce_backend.entities.OrderStatus;
-import com.example.matheusvsdev.ecommerce_backend.entities.Shipping;
+import com.example.matheusvsdev.ecommerce_backend.entities.*;
+import com.example.matheusvsdev.ecommerce_backend.projection.OrderProjection;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class OrderResponseDTO {
 

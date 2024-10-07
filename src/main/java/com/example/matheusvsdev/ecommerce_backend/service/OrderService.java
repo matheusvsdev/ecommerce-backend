@@ -2,16 +2,22 @@ package com.example.matheusvsdev.ecommerce_backend.service;
 
 import com.example.matheusvsdev.ecommerce_backend.dto.*;
 import com.example.matheusvsdev.ecommerce_backend.entities.*;
+import com.example.matheusvsdev.ecommerce_backend.projection.OrderProjection;
 import com.example.matheusvsdev.ecommerce_backend.repository.*;
 import com.example.matheusvsdev.ecommerce_backend.service.exceptions.ResourceNotFoundException;
 import com.stripe.exception.StripeException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 public class OrderService {
@@ -103,25 +109,45 @@ public class OrderService {
     }
 
     @Transactional(readOnly = true)
-    public OrderDTO findById(Long id) {
+    public OrderResponseDTO findById(Long id) {
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Pedido não encontrado"));
         authService.validateSelfOrAdmin(order.getUser().getId());
-        return new OrderDTO(order);
+        return new OrderResponseDTO(order);
     }
 
     @Transactional(readOnly = true)
-    public List<OrderDTO> findAll() {
-        User user = authService.authenticated();
+    public Page<OrderResponseDTO> findAll(Pageable pageable) {
+        Page<Order> orders = orderRepository.findAll(pageable);
+        return orders.map(OrderResponseDTO::new);
+    }
 
-        List<Order> orders;
+    @Transactional(readOnly = true)
+    public Page<OrderAdminDTO> searchOrders(Long clientId, String cpf, String status, String paymentMethod, String startDate, String endDate, Pageable pageable) {
+        Page<OrderProjection> orderProjections = orderRepository.searchOrders(clientId, cpf, status, paymentMethod, startDate, endDate, pageable);
 
-        if (user.hasRole("ROLE_ADMIN")) {
-            orders = orderRepository.findAll();
-        } else {
-            orders = orderRepository.findByUserId(user.getId());
-        }
-        return orders.stream().map(OrderDTO::new).collect(Collectors.toList());
+        Map<Long, OrderAdminDTO> orderMap = new HashMap<>();
+
+        orderProjections.forEach(projection -> {
+            Long orderId = projection.getOrderId();
+
+            OrderAdminDTO orderResponseDTO = orderMap.getOrDefault(orderId, new OrderAdminDTO(projection));
+
+            // Adicionando os itens ao pedido
+            OrderItemDTO orderItemDTO = new OrderItemDTO(
+                    projection.getProductId(),
+                    projection.getProductName(),
+                    projection.getProductPrice(),
+                    projection.getProductQuantity(),
+                    projection.getProductImg()
+            );
+
+            orderResponseDTO.getItems().add(orderItemDTO);
+
+            orderMap.put(orderId, orderResponseDTO);
+        });
+
+        return new PageImpl<>(new ArrayList<>(orderMap.values()), pageable, orderProjections.getTotalElements());
     }
 
     private void addItemsToOrder(Cart cart, Order order) {

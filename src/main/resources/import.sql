@@ -116,4 +116,24 @@ INSERT INTO tb_product_category (product_id, category_id) VALUES (28, 6);
 INSERT INTO tb_product_category (product_id, category_id) VALUES (29, 6);
 INSERT INTO tb_product_category (product_id, category_id) VALUES (30, 6);
 
+INSERT INTO tb_order (freight_cost, status, sub_total, total, address_id, moment, user_id) VALUES (0.0, 2, 8999.8, 8999.8, 1, '2024-02-12T15:32:27', 1);
+INSERT INTO tb_order (freight_cost, status, sub_total, total, address_id, moment, user_id) VALUES (29.06, 2, 289.9, 318.96, 2, '2024-02-27T19:02:11', 2);
+INSERT INTO tb_order (freight_cost, status, sub_total, total, address_id, moment, user_id) VALUES (0.0, 3, 199.9, 199.9, 1, '2024-02-03T09:01:38', 1);
+INSERT INTO tb_order (freight_cost, status, sub_total, total, address_id, moment, user_id) VALUES (0.0, 2, 1199.9, 1199.9, 2, '2024-07-23T10:12:47', 2);
+
+INSERT INTO tb_shipping (freight_cost, delivery_time, order_id, order_update, status) VALUES (0.0, '2024-02-27T08:02:49', 1, '2024-02-27T08:02:49', 'ENTREGUE');
+INSERT INTO tb_shipping (freight_cost, delivery_time, order_id, order_update, status) VALUES (29.06, '2024-03-14T09:32:19', 2, '2024-03-14T09:32:19', 'ENTREGUE');
+INSERT INTO tb_shipping (freight_cost, delivery_time, order_id, order_update, status) VALUES (0.0, '2024-02-18T13:52:49', 3, '2024-02-18T13:52:49', 'ENTREGA_NAO_EFETUADA');
+INSERT INTO tb_shipping (freight_cost, delivery_time, order_id, order_update, status) VALUES (29.06, '2024-08-07T17:12:49', 4, '2024-08-07T17:12:49', 'ENTREGUE');
+
+INSERT INTO tb_payment (amount, payment_method, status, order_id, payment_date, token, transaction_id) VALUES (8999.8, 1, 1, 1, '2024-02-12T15:32:27', 'tok_visa', 'ch_3Q7IOoKTisW4hrZA1bPsSVdA');
+INSERT INTO tb_payment (amount, payment_method, status, order_id, payment_date, token, transaction_id) VALUES (318.96, 1, 1, 2, '2024-02-27T19:02:11', 'tok_visa', 'ch_3Q7IOoKTisW8irZA1bPsSVdA');
+INSERT INTO tb_payment (amount, payment_method, status, order_id, payment_date, token, transaction_id) VALUES (199.9, 1, 1, 3, '2024-02-03T09:01:38', 'tok_visa', 'ch_8Q7IO7KTisW8irZA1bPsSVdA');
+INSERT INTO tb_payment (amount, payment_method, status, order_id, payment_date, token, transaction_id) VALUES (1199.9, 1, 1, 4, '2024-07-23T10:12:47', 'tok_visa', 'ch_8Q7aO7CTisW3irZA1bPsSVdA');
+
+INSERT INTO tb_order_item (price, quantity, order_id, product_id) VALUES (499.9, 1, 1, 28);
+INSERT INTO tb_order_item (price, quantity, order_id, product_id) VALUES (8499.9, 1, 1, 11);
+INSERT INTO tb_order_item (price, quantity, order_id, product_id) VALUES (289.9, 1, 2, 1);
+INSERT INTO tb_order_item (price, quantity, order_id, product_id) VALUES (199.9, 1, 3, 7);
+INSERT INTO tb_order_item (price, quantity, order_id, product_id) VALUES (1199.9, 1, 4, 30);
 

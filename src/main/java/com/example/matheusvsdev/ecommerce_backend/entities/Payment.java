@@ -9,7 +9,6 @@ import java.util.Objects;
 public class Payment {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private PaymentMethod paymentMethod;
@@ -18,6 +17,7 @@ public class Payment {
 
     @OneToOne
     @MapsId
+    @JoinColumn(name = "order_id")
     private Order order;
 
     private LocalDateTime paymentDate;
@@ -31,10 +31,11 @@ public class Payment {
     public Payment() {
     }
 
-    public Payment(Long id, PaymentMethod paymentMethod, PaymentStatus status, LocalDateTime paymentDate, String transactionId, String token, Integer amount) {
+    public Payment(Long id, PaymentMethod paymentMethod, PaymentStatus status, Order order, LocalDateTime paymentDate, String transactionId, String token, Integer amount) {
         this.id = id;
         this.paymentMethod = paymentMethod;
         this.status = status;
+        this.order = order;
         this.paymentDate = paymentDate;
         this.transactionId = transactionId;
         this.token = token;
