@@ -45,7 +45,7 @@ public class ControllerExceptions {
 
     @ExceptionHandler(ArgumentAlreadyExistsException.class)
     public ResponseEntity<CustomError> resourceNotFound(ArgumentAlreadyExistsException e, HttpServletRequest request) {
-        HttpStatus status = HttpStatus.UNPROCESSABLE_ENTITY;
+        HttpStatus status = HttpStatus.CONFLICT;
         CustomError error = new CustomError(Instant.now()
                 , status.value()
                 , e.getMessage()

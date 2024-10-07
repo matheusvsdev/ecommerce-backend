@@ -1,9 +1,11 @@
 package com.example.matheusvsdev.ecommerce_backend.controller;
 
+import com.example.matheusvsdev.ecommerce_backend.docs.ProductControllerDocs;
 import com.example.matheusvsdev.ecommerce_backend.dto.InventoryDTO;
 import com.example.matheusvsdev.ecommerce_backend.dto.ProductDTO;
 import com.example.matheusvsdev.ecommerce_backend.projection.ProductProjection;
 import com.example.matheusvsdev.ecommerce_backend.service.ProductService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -19,7 +21,8 @@ import java.util.List;
 
 @RestController
 @RequestMapping(value = "/products")
-public class ProductController {
+@Tag(name = "Product Controller", description = "Operações relacionadas aos produtos")
+public class ProductController implements ProductControllerDocs {
 
     @Autowired
     private ProductService productService;

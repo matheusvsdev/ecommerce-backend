@@ -1,8 +1,6 @@
 package com.example.matheusvsdev.ecommerce_backend.dto;
 
 import com.example.matheusvsdev.ecommerce_backend.entities.Inventory;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Positive;
 
 import java.time.LocalDateTime;
 

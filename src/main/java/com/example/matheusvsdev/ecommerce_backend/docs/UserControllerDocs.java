@@ -2,6 +2,7 @@ package com.example.matheusvsdev.ecommerce_backend.docs;
 
 import com.example.matheusvsdev.ecommerce_backend.dto.UpdateUserDTO;
 import com.example.matheusvsdev.ecommerce_backend.dto.UserDTO;
+import com.example.matheusvsdev.ecommerce_backend.service.exceptions.ArgumentAlreadyExistsException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -11,9 +12,11 @@ import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
+import org.apache.coyote.BadRequestException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 
 public interface UserControllerDocs {
 
@@ -21,10 +24,51 @@ public interface UserControllerDocs {
             requestBody = @RequestBody(description = "Detalhes do novo usuário a ser criado", required = true,
                     content = @Content(schema = @Schema(implementation = UserDTO.class))))
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Usuário criado com sucesso",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserDTO.class))),
-            @ApiResponse(responseCode = "400", description = "Dados de entrada inválidos",
-                    content = @Content(mediaType = "application/json"))
+            @ApiResponse(
+                    responseCode = "201",
+                    description = "Usuário criado com sucesso",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = UserDTO.class),
+                            examples = @ExampleObject(
+                                    name = "Exemplo de Usuário",
+                                    value = """
+                {
+                    "id": 1,
+                    "firstName": "João",
+                    "lastName": "Silva",
+                    "birthDate": "1990-01-01",
+                    "cpf": "123.456.789-00",
+                    "phone": "(11) 91234-5678",
+                    "email": "joao.silva@example.com",
+                    "roles": [
+                        {
+                            "id": 1,
+                            "authority": "ROLE_USER"
+                        }
+                    ]
+                }
+                """
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Bad Request",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = BadRequestException.class))
+            ),
+
+            @ApiResponse(
+                    responseCode = "409",
+                    description = "Conflict: e-mail ou CPF já está em uso",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ArgumentAlreadyExistsException.class))
+            ),
+
+            @ApiResponse(
+                    responseCode = "422",
+                    description = "Unprocessable Entity: Dados inválidos",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = MethodArgumentNotValidException.class))
+            ),
     })
     ResponseEntity<UserDTO> createUser(@Valid @org.springframework.web.bind.annotation.RequestBody UserDTO client);
 
