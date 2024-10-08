@@ -88,7 +88,7 @@ public interface UserControllerDocs {
                     schema = @Schema(implementation = UserDTO.class),
                     examples = @ExampleObject(
                             name = "Exemplo de Usuário",
-                            value = "{ \"id\": 1, \"firstName\": \"João\", \"lastName\": \"Silva\", \"birthDate\": \"1990-01-01\", \"cpf\": \"123.456.789-00\", \"phone\": \"(11) 91234-5678\", \"email\": \"joao.silva@example.com\", \"password\": \"password123\", \"roles\": [ { \"id\": 1, \"authority\": \"ROLE_USER\" } ] }"
+                            value = "{ \"id\": 1, \"firstName\": \"João\", \"lastName\": \"Silva\", \"birthDate\": \"1990-01-01\", \"cpf\": \"123.456.789-00\", \"phone\": \"(11) 91234-5678\", \"email\": \"joao.silva@example.com\", \"roles\": [ { \"id\": 1, \"authority\": \"ROLE_USER\" } ] }"
                     ))),
             @ApiResponse(responseCode = "404", description = "Usuário não encontrado")
     })

@@ -40,6 +40,7 @@ public class AddressService {
     public AddressDTO findById(Long id) {
         Address address = addressRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Endereço não encontrado"));
+        authService.validateSelfOrAdmin(address.getClient().getId());
         return new AddressDTO(address);
     }
 
@@ -54,7 +55,7 @@ public class AddressService {
         } else {
             addresses = addressRepository.findByClientId(user.getId());
         }
-        return addresses.stream().map(x -> new AddressDTO(x)).collect(Collectors.toList());
+        return addresses.stream().map(AddressDTO::new).collect(Collectors.toList());
     }
 
     @Transactional

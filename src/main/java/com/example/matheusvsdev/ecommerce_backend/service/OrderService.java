@@ -7,9 +7,7 @@ import com.example.matheusvsdev.ecommerce_backend.repository.*;
 import com.example.matheusvsdev.ecommerce_backend.service.exceptions.ResourceNotFoundException;
 import com.stripe.exception.StripeException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.*;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -124,6 +122,7 @@ public class OrderService {
 
     @Transactional(readOnly = true)
     public Page<OrderAdminDTO> searchOrders(Long clientId, String cpf, String status, String paymentMethod, String startDate, String endDate, Pageable pageable) {
+
         Page<OrderProjection> orderProjections = orderRepository.searchOrders(clientId, cpf, status, paymentMethod, startDate, endDate, pageable);
 
         Map<Long, OrderAdminDTO> orderMap = new HashMap<>();

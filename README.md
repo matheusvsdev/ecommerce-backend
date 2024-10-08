@@ -11,6 +11,7 @@ Este projeto de e-commerce foi desenvolvido para estudo e para compor meu portf�
 - **Controle de Estoque**: O sistema realiza a diminuição do estoque a cada pedido. Caso o estoque de um produto chegue a zero, ele não estará mais disponível para pedidos até que haja uma nova entrada no sistema. Também há controle de movimentação de estoque, registrando entradas e saídas, a quantidade que entrou, a quantidade disponível em estoque e horários das transações.
 - **Integração com API de Pagamento**: Implementação com Stripe para processamento de pagamentos.
 - **Segurança**: Implementação de segurança com OAuth2 e BCrypt.
+- **Documentação com Swagger**: A API está documentada com o Swagger, permitindo a interação direta com os endpoints pelo navegador.
 
 O projeto está em andamento, e toda colaboração é bem-vinda!
 
@@ -53,6 +54,83 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
   - **:name:** faz uma busca no nome do produto que não é sensível a maiúsculas e minúsculas, permitindo a pesquisa parcial.
   - **Paginação:** O método retorna uma Page<ProductProjection>, possibilitando a implementação de paginação para uma melhor experiência do usuário ao navegar pelos produtos.
   
+## Documentação da API com Swagger
+
+Esta aplicação utiliza o Swagger para fornecer uma interface de documentação e testes da API.
+
+### Acessando a Documentação da API
+- **Swagger UI: http://54.233.15.78:8080/ecommerce-backend/swagger-ui.html**
+
+A documentação do Swagger oferece uma visão detalhada dos endpoints disponíveis, dos parâmetros que eles aceitam e das respostas esperadas, tudo em uma interface gráfica acessível diretamente pelo navegador.
+
+#### Exemplo de Requisição ####
+
+- **Endpoint:** /users/{id}
+- **Parâmetros:** 
+  - id: ID do usuário que você deseja buscar.
+
+A resposta esperada para um usuário existente seria algo como:
+    
+    {
+      "id": 1,
+      "firstName": "João",
+      "lastName": "Silva",
+      "birthDate": "1990-01-01",
+      "cpf": "123.456.789-00",
+      "phone": "(11) 91234-5678",
+      "email": "joao.silva@example.com",
+      "roles": [
+        {
+          "id": 1,
+          "authority": "ROLE_USER"
+        }
+      ]
+    }
+
+Em caso de erro, por exemplo, se o usuário não for encontrado, a API retornará:
+
+    {
+      "status": 404,
+      "error": "Not Found",
+      "message": "Usuário com o ID 1 não encontrado",
+      "path": "/users/1"
+    }
+
+### Tecnologias de Documentação Utilizadas
+
+- **Swagger:** Para documentação automática e testes da API.
+- **Springdoc OpenAPI:** Integração com Spring Boot para gerar a documentação automaticamente.
+
+## Processo de Deploy na AWS EC2
+
+O deploy desta aplicação foi realizado utilizando a infraestrutura da AWS EC2. Aqui está um resumo do processo:
+
+- **Criação da Instância EC2:** Criei uma instância na AWS EC2 usando o Amazon Linux 2.
+- **Instalação do Java 21:** Instalei o Amazon Corretto 21 na instância para rodar o aplicativo Java.
+- **Transferência do Arquivo .jar para a Instância:** Usei o comando scp para transferir o arquivo .jar gerado localmente para a instância EC2.
+- **Execução da Aplicação:** Rodei a aplicação usando o comando nohup para manter o processo rodando em segundo plano:
+
+      nohup java -jar /home/ec2-user/ecommerce-backend-0.0.1-SNAPSHOT.jar > log.out 2>&1 &
+
+### Acessar a Aplicação
+
+A aplicação pode ser acessada pelo seguinte endereço no Postman:
+
+    http://54.233.15.78:8080
+
+Basta completar com os endpoints para testar.
+
+Se você quiser acessar a documentação do Swagger para testar os endpoints, use o seguinte link:
+
+    http://54.233.15.78:8080/ecommerce-backend/swagger-ui.html
+
+## Tecnologias Utilizadas no Deploy
+
+- **Amazon EC2:** Para hospedar a aplicação.
+- **Amazon Corretto (Java 21):** Ambiente de execução Java utilizado na instância.
+- **AWS CLI:** Para configuração de portas e gerenciamento da instância.
+- **SSH e SCP:** Para acessar a instância EC2 e transferir arquivos.
+
 ## Tecnologias Utilizadas
 
 - **Java**

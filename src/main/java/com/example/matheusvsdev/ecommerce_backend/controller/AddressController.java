@@ -38,8 +38,9 @@ public class AddressController {
         return ResponseEntity.ok(cartList);
     }
 
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_CLIENT')")
     @GetMapping(value = "/{id}")
-    private ResponseEntity<AddressDTO> findById(@PathVariable Long id) {
+    public ResponseEntity<AddressDTO> findById(@PathVariable Long id) {
         AddressDTO address = addressService.findById(id);
         return ResponseEntity.ok().body(address);
     }

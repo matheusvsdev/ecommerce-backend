@@ -63,7 +63,7 @@ public class Order {
             subTotal += itemDTO.getSubTotal();
         }
 
-        return subTotal;
+        return Math.round(subTotal) * 100.0 / 100.0;
     }
 
     public Double getTotal() {
