@@ -16,6 +16,7 @@ import org.apache.coyote.BadRequestException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 
 public interface UserControllerDocs {
@@ -90,7 +91,13 @@ public interface UserControllerDocs {
                             name = "Exemplo de Usuário",
                             value = "{ \"id\": 1, \"firstName\": \"João\", \"lastName\": \"Silva\", \"birthDate\": \"1990-01-01\", \"cpf\": \"123.456.789-00\", \"phone\": \"(11) 91234-5678\", \"email\": \"joao.silva@example.com\", \"roles\": [ { \"id\": 1, \"authority\": \"ROLE_USER\" } ] }"
                     ))),
-            @ApiResponse(responseCode = "404", description = "Usuário não encontrado")
+            @ApiResponse(responseCode = "404", description = "Usuário não encontrado",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponse.class),
+                            examples = @ExampleObject(
+                                    name = "Exemplo de Erro 404",
+                                    value = "{ \"status\": 404, \"error\": \"Not Found\", \"message\": \"Usuário com o ID 1 não encontrado\", \"path\": \"/users/1\" }"
+                            )))
     })
     ResponseEntity<UserDTO> findById(
             @Parameter(description = "ID do usuário", example = "1", required = true) Long id);
