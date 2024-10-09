@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -70,4 +71,18 @@ public interface ProductControllerDocs {
             @ApiResponse(responseCode = "400", description = "Bad Request")
     })
     ResponseEntity<Page<ProductDTO>> findAll(Pageable pageable);
+
+    @Operation(summary = "Atualiza um produto por ID", description = "Atualiza as informações do produto especificado pelo ID.",
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Detalhes do produto a serem atualizados", required = true,
+                    content = @Content(schema = @Schema(implementation = ProductDTO.class))))
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Produto atualizado com sucesso",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProductDTO.class))),
+            @ApiResponse(responseCode = "404", description = "Produto não encontrado")
+    })
+    ResponseEntity<ProductDTO> update(
+            @Parameter(description = "ID do produto a ser atualizado", example = "1", required = true) Long id,
+            @Valid @org.springframework.web.bind.annotation.RequestBody ProductDTO dto);
+
+
 }

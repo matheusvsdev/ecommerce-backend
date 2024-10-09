@@ -20,17 +20,17 @@ public class InventoryMovement {
     private String movementType;  // "ENTRADA" ou "SAIDA"
 
     @Column(name = "quantity")
-    private int quantity;
+    private Integer quantity;
 
     @Column(name = "moment")
     private LocalDateTime moment;
 
     @Column(name = "remaining_stock")
-    private int remainingStock;
+    private Integer remainingStock;
 
     public InventoryMovement() {}
 
-    public InventoryMovement(Product product, String movementType, int quantity, int remainingStock) {
+    public InventoryMovement(Product product, String movementType, Integer quantity, Integer remainingStock) {
         this.product = product;
         this.movementType = movementType;
         this.quantity = quantity;
@@ -62,11 +62,11 @@ public class InventoryMovement {
         this.movementType = movementType;
     }
 
-    public int getQuantity() {
+    public Integer getQuantity() {
         return quantity;
     }
 
-    public void setQuantity(int quantity) {
+    public void setQuantity(Integer quantity) {
         this.quantity = quantity;
     }
 
@@ -78,11 +78,11 @@ public class InventoryMovement {
         this.moment = moment;
     }
 
-    public int getRemainingStock() {
+    public Integer getRemainingStock() {
         return remainingStock;
     }
 
-    public void setRemainingStock(int remainingStock) {
+    public void setRemainingStock(Integer remainingStock) {
         this.remainingStock = remainingStock;
     }
 }

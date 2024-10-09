@@ -2,6 +2,7 @@ package com.example.matheusvsdev.ecommerce_backend.service;
 
 import com.example.matheusvsdev.ecommerce_backend.dto.RoleDTO;
 import com.example.matheusvsdev.ecommerce_backend.dto.UserDTO;
+import com.example.matheusvsdev.ecommerce_backend.dto.UserResponseDTO;
 import com.example.matheusvsdev.ecommerce_backend.entities.Role;
 import com.example.matheusvsdev.ecommerce_backend.entities.User;
 import com.example.matheusvsdev.ecommerce_backend.projection.UserDetailsProjection;
@@ -41,19 +42,19 @@ public class UserService implements UserDetailsService {
     private EmailService emailService;
 
     @Transactional
-    public UserDTO createUser(UserDTO userDTO) {
+    public UserResponseDTO createUser(UserDTO userDTO) {
         User user = new User();
         assigningDtoToEntities(user, userDTO);
 
         emailAndCpfValidation(userDTO);
 
-        addUserRole(user, userDTO);
-
         user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
+
+        addUserRole(user, userDTO);
 
         user = userRepository.save(user);
 
-        return new UserDTO(user);
+        return new UserResponseDTO(user);
     }
 
     @Transactional(readOnly = true)

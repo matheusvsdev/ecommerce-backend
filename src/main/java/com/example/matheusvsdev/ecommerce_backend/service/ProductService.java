@@ -58,11 +58,6 @@ public class ProductService {
         Page<Product> result = productRepository.findAllProductsWithCategories(pageable);
         return result.map(ProductDTO::new);
     }
-    @Transactional(readOnly = true)
-    public Page<ProductDTO> findProductsByCategoryId(Long categoryId, Pageable pageable) {
-        Page<Product> result = productRepository.findProductsByCategoryId(categoryId, pageable);
-        return result.map(ProductDTO::new);
-    }
 
     @Transactional(readOnly = true)
     public Page<ProductProjection> searchProducts(List<Long> categoryIds, String name, Pageable pageable) {
@@ -125,8 +120,12 @@ public class ProductService {
 
         entity.getCategories().clear();
         for (CategoryDTO catDTO : dto.getCategories()) {
-            Category category = categoryRepository.getReferenceById(catDTO.getId());
-            entity.getCategories().add(category);
+            try {
+                Category category = categoryRepository.getReferenceById(catDTO.getId());
+                entity.getCategories().add(category);
+            } catch (EntityNotFoundException e) {
+                throw new ResourceNotFoundException("Categoria não encontrada");
+            }
         }
     }
 }

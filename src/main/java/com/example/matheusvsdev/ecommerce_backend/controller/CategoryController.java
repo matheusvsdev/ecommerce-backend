@@ -2,6 +2,7 @@ package com.example.matheusvsdev.ecommerce_backend.controller;
 
 import com.example.matheusvsdev.ecommerce_backend.dto.CategoryDTO;
 import com.example.matheusvsdev.ecommerce_backend.service.CategoryService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -35,6 +36,7 @@ public class CategoryController {
 
 	@PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_CLIENT')")
 	@PostMapping
+	@SecurityRequirement(name = "bearerAuth")
 	public ResponseEntity<CategoryDTO> insert(@Valid  @RequestBody CategoryDTO dto) {
 		dto = service.insert(dto);
 		URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
@@ -45,6 +47,7 @@ public class CategoryController {
 
 	@PreAuthorize("hasRole('ROLE_ADMIN')")
 	@PutMapping(value = "/{id}")
+	@SecurityRequirement(name = "bearerAuth")
 	public ResponseEntity<CategoryDTO> update(@Valid @PathVariable Long id, @RequestBody CategoryDTO dto) {
 		dto = service.update(id, dto);
 
@@ -53,6 +56,7 @@ public class CategoryController {
 
 	@PreAuthorize("hasRole('ROLE_ADMIN')")
 	@DeleteMapping(value = "/{id}")
+	@SecurityRequirement(name = "bearerAuth")
 	public ResponseEntity<Void> delete(@PathVariable Long id) {
 		service.delete(id);
 

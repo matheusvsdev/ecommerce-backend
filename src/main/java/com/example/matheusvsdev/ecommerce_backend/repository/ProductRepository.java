@@ -33,10 +33,4 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     @Query("SELECT obj FROM Product obj LEFT JOIN FETCH obj.categories")
     Page<Product> findAllProductsWithCategories(Pageable pageable);
-
-    @Query(nativeQuery = true, value = "SELECT tb_product.id, img, name, description, quantity, price " +
-            "FROM tb_product " +
-            "JOIN tb_product_category ON tb_product.id = tb_product_category.product_id " +
-            "WHERE tb_product_category.category_id = :categoryId")
-    Page<Product> findProductsByCategoryId(@Param("categoryId")Long categoryId, Pageable pageable);
 }

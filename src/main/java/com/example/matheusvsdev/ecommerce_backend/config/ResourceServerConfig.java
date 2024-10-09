@@ -1,5 +1,7 @@
 package com.example.matheusvsdev.ecommerce_backend.config;
 
+import com.example.matheusvsdev.ecommerce_backend.config.customgrant.CustomAuthenticationEntryPoint;
+import com.example.matheusvsdev.ecommerce_backend.controller.handlers.ControllerExceptions;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
@@ -23,11 +25,17 @@ import java.util.Arrays;
 @EnableMethodSecurity
 public class ResourceServerConfig {
 
+	private final CustomAuthenticationEntryPoint authenticationEntryPoint;
+
+	public ResourceServerConfig(CustomAuthenticationEntryPoint authenticationEntryPoint) {
+		this.authenticationEntryPoint = authenticationEntryPoint;
+	}
+
 	// Propriedades injetadas a partir de um arquivo de configuração
 	@Value("${cors.origins}")
 	private String corsOrigins;
 
-	// Configuração de segurança para o console H2 em ambiente de teste
+    // Configuração de segurança para o console H2 em ambiente de teste
 	@Bean
 	@Profile("test")
 	@Order(1)
@@ -44,7 +52,9 @@ public class ResourceServerConfig {
 	public SecurityFilterChain rsSecurityFilterChain(HttpSecurity http) throws Exception {
 
 		http.csrf(csrf -> csrf.disable()); // Desativa CSRF
-		http.authorizeHttpRequests(authorize -> authorize.anyRequest().permitAll()); // Permite todas as requisições e travadas por autorização de usuário
+		http.authorizeHttpRequests(authorize -> authorize.anyRequest().permitAll()) // Permite todas as requisições e travadas por autorização de usuário
+							.exceptionHandling(exceptionHandling ->
+								exceptionHandling.authenticationEntryPoint(authenticationEntryPoint));
 		http.oauth2ResourceServer(oauth2ResourceServer -> oauth2ResourceServer.jwt(Customizer.withDefaults())); // Configura JWT
 		http.cors(cors -> cors.configurationSource(corsConfigurationSource())); // Configuração CORS
 
@@ -73,7 +83,7 @@ public class ResourceServerConfig {
 		corsConfig.setAllowedOriginPatterns(Arrays.asList(origins));
 		corsConfig.setAllowedMethods(Arrays.asList("POST", "GET", "PUT", "DELETE", "PATCH"));
 		corsConfig.setAllowCredentials(true);
-		corsConfig.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type"));
+		corsConfig.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "X-Requested-With"));
 
 		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 		source.registerCorsConfiguration("/**", corsConfig);

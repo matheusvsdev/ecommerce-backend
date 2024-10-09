@@ -1,15 +1,14 @@
 package com.example.matheusvsdev.ecommerce_backend.controller;
 
 import com.example.matheusvsdev.ecommerce_backend.docs.ProductControllerDocs;
-import com.example.matheusvsdev.ecommerce_backend.dto.InventoryDTO;
 import com.example.matheusvsdev.ecommerce_backend.dto.ProductDTO;
 import com.example.matheusvsdev.ecommerce_backend.projection.ProductProjection;
 import com.example.matheusvsdev.ecommerce_backend.service.ProductService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -29,7 +28,8 @@ public class ProductController implements ProductControllerDocs {
 
     @PreAuthorize(value = "hasRole('ROLE_ADMIN')")
     @PostMapping
-    public ResponseEntity<ProductDTO> insert(@RequestBody ProductDTO productDTO) {
+    @SecurityRequirement(name = "bearerAuth")
+    public ResponseEntity<ProductDTO> insert(@Valid @RequestBody ProductDTO productDTO) {
         productDTO = productService.insertProduct(productDTO);
         URI uri = ServletUriComponentsBuilder
                 .fromCurrentRequest()
@@ -47,20 +47,10 @@ public class ProductController implements ProductControllerDocs {
     }
 
     @GetMapping(value = "/{id}")
+    @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<ProductDTO> findById(@PathVariable Long id) {
         ProductDTO dto = productService.findById(id);
         return ResponseEntity.ok().body(dto);
-    }
-
-    @GetMapping("/category/{categoryId}")
-    public ResponseEntity<Page<ProductDTO>> getProductsByCategory(
-            @PathVariable Long categoryId,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-
-        Pageable pageable = PageRequest.of(page, size);
-        Page<ProductDTO> products = productService.findProductsByCategoryId(categoryId, pageable);
-        return ResponseEntity.ok(products);
     }
 
     @GetMapping("/search")
@@ -73,6 +63,7 @@ public class ProductController implements ProductControllerDocs {
 
     @PreAuthorize(value = "hasRole('ROLE_ADMIN')")
     @PutMapping(value = "/{id}")
+    @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<ProductDTO> update(@PathVariable Long id, @Valid @RequestBody ProductDTO dto) {
         dto = productService.update(id, dto);
         return ResponseEntity.ok().body(dto);
@@ -80,6 +71,7 @@ public class ProductController implements ProductControllerDocs {
 
     @PreAuthorize(value = "hasRole('ROLE_ADMIN')")
     @DeleteMapping(value = "/{id}")
+    @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         productService.delete(id);
         return ResponseEntity.noContent().build();

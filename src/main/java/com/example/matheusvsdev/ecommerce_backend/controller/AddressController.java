@@ -2,6 +2,7 @@ package com.example.matheusvsdev.ecommerce_backend.controller;
 
 import com.example.matheusvsdev.ecommerce_backend.dto.AddressDTO;
 import com.example.matheusvsdev.ecommerce_backend.service.AddressService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +14,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping(value = "/address")
+@SecurityRequirement(name = "bearerAuth")
 public class AddressController {
 
     @Autowired

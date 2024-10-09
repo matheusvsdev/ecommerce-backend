@@ -5,6 +5,7 @@ import com.example.matheusvsdev.ecommerce_backend.dto.OrderDTO;
 import com.example.matheusvsdev.ecommerce_backend.dto.OrderResponseDTO;
 import com.example.matheusvsdev.ecommerce_backend.service.OrderService;
 import com.example.matheusvsdev.ecommerce_backend.service.StripePaymentService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -16,6 +17,7 @@ import java.net.URI;
 
 @RestController
 @RequestMapping(value = "/order")
+@SecurityRequirement(name = "bearerAuth")
 public class OrderController {
 
     @Autowired

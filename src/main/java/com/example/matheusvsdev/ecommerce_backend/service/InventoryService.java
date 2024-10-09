@@ -1,6 +1,7 @@
 package com.example.matheusvsdev.ecommerce_backend.service;
 
 import com.example.matheusvsdev.ecommerce_backend.dto.InventoryDTO;
+import com.example.matheusvsdev.ecommerce_backend.dto.InventoryMovementDTO;
 import com.example.matheusvsdev.ecommerce_backend.entities.Inventory;
 import com.example.matheusvsdev.ecommerce_backend.entities.InventoryMovement;
 import com.example.matheusvsdev.ecommerce_backend.entities.MovementType;
@@ -10,6 +11,8 @@ import com.example.matheusvsdev.ecommerce_backend.repository.ProductRepository;
 import com.example.matheusvsdev.ecommerce_backend.service.exceptions.IllegalArgumentException;
 import com.example.matheusvsdev.ecommerce_backend.service.exceptions.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,6 +29,18 @@ public class InventoryService {
 
     @Autowired
     private InventoryMovementRepository inventoryMovementRepository;
+
+    @Transactional(readOnly = true)
+    public Page<InventoryDTO> findAll(Pageable pageable) {
+        Page<Inventory> inventories = inventoryRepository.findAll(pageable);
+        return inventories.map(InventoryDTO::new);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<InventoryMovementDTO> inventoryMovement(Pageable pageable) {
+        Page<InventoryMovement> inventories = inventoryMovementRepository.findAll(pageable);
+        return inventories.map(InventoryMovementDTO::new);
+    }
 
     @Transactional
     public InventoryDTO replenishStock(Long id, InventoryDTO dto) {

@@ -3,8 +3,10 @@ package com.example.matheusvsdev.ecommerce_backend.controller;
 import com.example.matheusvsdev.ecommerce_backend.docs.UserControllerDocs;
 import com.example.matheusvsdev.ecommerce_backend.dto.UpdateUserDTO;
 import com.example.matheusvsdev.ecommerce_backend.dto.UserDTO;
+import com.example.matheusvsdev.ecommerce_backend.dto.UserResponseDTO;
 import com.example.matheusvsdev.ecommerce_backend.service.UpdateOwnUserService;
 import com.example.matheusvsdev.ecommerce_backend.service.UserService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +21,7 @@ import java.net.URI;
 @RestController
 @RequestMapping(value = "/users")
 @Tag(name = "User Controller", description = "Operações relacionadas aos usuários")
+@SecurityRequirement(name = "bearerAuth")
 public class UserController implements UserControllerDocs {
 
     @Autowired
@@ -28,15 +31,15 @@ public class UserController implements UserControllerDocs {
     private UpdateOwnUserService updateOwnUserService;
 
     @PostMapping
-    public ResponseEntity<UserDTO> createUser(@Valid  @RequestBody UserDTO client) {
-        client = userService.createUser(client);
+    public ResponseEntity<UserResponseDTO> createUser(@Valid @RequestBody UserDTO userDTO) {
+        UserResponseDTO user = userService.createUser(userDTO);
         URI uri = ServletUriComponentsBuilder
                 .fromCurrentRequest()
                 .path("/{id}")
-                .buildAndExpand(client.getId())
+                .buildAndExpand(userDTO.getId())
                 .toUri();
 
-        return ResponseEntity.created(uri).body(client);
+        return ResponseEntity.created(uri).body(user);
     }
 
     @PreAuthorize(("hasRole('ROLE_ADMIN')"))

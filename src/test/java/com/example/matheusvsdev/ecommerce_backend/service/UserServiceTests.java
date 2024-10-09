@@ -2,6 +2,7 @@ package com.example.matheusvsdev.ecommerce_backend.service;
 
 import com.example.matheusvsdev.ecommerce_backend.dto.RoleDTO;
 import com.example.matheusvsdev.ecommerce_backend.dto.UserDTO;
+import com.example.matheusvsdev.ecommerce_backend.dto.UserResponseDTO;
 import com.example.matheusvsdev.ecommerce_backend.entities.Role;
 import com.example.matheusvsdev.ecommerce_backend.entities.User;
 import com.example.matheusvsdev.ecommerce_backend.projection.UserDetailsProjection;
@@ -183,7 +184,7 @@ public class UserServiceTests {
         Mockito.when(userRepository.existsByEmail(newUser.getEmail())).thenReturn(false);
         Mockito.when(userRepository.save(Mockito.any(User.class))).thenReturn(UserFactory.createClientUser());
 
-        UserDTO result = userService.createUser(new UserDTO());
+        UserResponseDTO result = userService.createUser(new UserDTO());
 
         assertNotNull(result);
         assertEquals(newUser.getEmail(), result.getEmail());
