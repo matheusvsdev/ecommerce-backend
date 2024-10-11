@@ -139,11 +139,46 @@ public interface UserControllerDocs {
 
     @Operation(summary = "Atualiza um usuário por ID", description = "Atualiza as informações do usuário especificado pelo ID.",
             requestBody = @RequestBody(description = "Detalhes do usuário a serem atualizados", required = true,
-                    content = @Content(schema = @Schema(implementation = UserDTO.class))))
+                    content = @Content(schema = @Schema(implementation = UserResponseDTO.class))))
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Usuário atualizado com sucesso",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserDTO.class))),
-            @ApiResponse(responseCode = "404", description = "Usuário não encontrado")
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Usuário atualizado com sucesso",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = UserResponseDTO.class),
+                            examples = @ExampleObject(
+                                    name = "Exemplo de atualização de dados do Usuário",
+                                    value = """
+                {
+                    "id": 1,
+                    "firstName": "João",
+                    "lastName": "Silva",
+                    "birthDate": "1990-01-01",
+                    "cpf": "123.456.789-00",
+                    "phone": "(11) 91234-5678",
+                    "email": "joao.silva@example.com",
+                    "roles": [
+                        {
+                            "id": 1,
+                            "authority": "ROLE_CLIENT"
+                        }
+                    ]
+                }
+                """))),
+            @ApiResponse(responseCode = "404", description = "Usuário não encontrado.",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponse.class),
+                            examples = @ExampleObject(
+                                    name = "Exemplo de usuário não encontrado",
+                                    value = """
+                            {
+                                "timestamp": "2024-10-11T03:40:44.363563073Z",
+                                "status": "404",
+                                "error": "Usuário não encontrado.",
+                                "path": "/users/1"
+                            }
+                            """))),
     })
     ResponseEntity<UserDTO> update(
             @Parameter(description = "ID do usuário a ser atualizado", example = "1", required = true) Long id,
@@ -160,8 +195,33 @@ public interface UserControllerDocs {
 
     @Operation(summary = "Deleta um usuário por ID", description = "Permite a exclusão de um usuário especificado pelo ID.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "Usuário deletado com sucesso"),
-            @ApiResponse(responseCode = "404", description = "Usuário não encontrado")
+            @ApiResponse(responseCode = "204", description = "Usuário deletado com sucesso."),
+            @ApiResponse(responseCode = "404", description = "Usuário não encontrado.",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponse.class),
+                            examples = @ExampleObject(
+                                    name = "Exemplo de usuário não encontrado",
+                                    value = """
+                            {
+                                "timestamp": "2024-10-11T03:40:44.363563073Z",
+                                "status": "404",
+                                "error": "Usuário não encontrado.",
+                                "path": "/users/1"
+                            }
+                            """))),
+            @ApiResponse(responseCode = "409", description = "Usuário associado a outros registros.",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponse.class),
+                            examples = @ExampleObject(
+                                    name = "Exemplo de usuário associado a outros registros",
+                                    value = """
+                            {
+                                "timestamp": "2024-10-11T03:40:44.363563073Z",
+                                "status": "409",
+                                "error": "Falha de integridade referencial.",
+                                "path": "/users/1"
+                            }
+                            """)))
     })
     ResponseEntity<Void> delete(@Parameter(description = "ID do usuário a ser deletado", example = "1", required = true) Long id);
 

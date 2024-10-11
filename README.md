@@ -118,7 +118,7 @@ A aplicação pode ser acessada pelo seguinte endereço no Postman:
 
     http://54.233.15.78:8080
 
-Basta completar com os endpoints para testar.
+Na pasta Postman se encontram os arquivos Environments e Collection, basta importar no seu Postman.
 
 Se você quiser acessar a documentação do Swagger para testar os endpoints, use o seguinte link:
 
