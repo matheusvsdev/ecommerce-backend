@@ -29,11 +29,6 @@ public class UserDTO {
     @Pattern(regexp = ".+@.+\\..+", message = "Email deve ter um domínio válido")
     private String email;
 
-    @NotBlank(message = "Campo requerido")
-    @Pattern(regexp = "^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)[A-Za-z\\d]{8,}$"
-            , message = "Senha deve ter pelo menos 8 caracteres, incluindo uma letra maiúscula, uma letra minúscula e um número")
-    private String password;
-
     Set<RoleDTO> roles = new HashSet<>();
 
     public UserDTO() {
@@ -45,8 +40,7 @@ public class UserDTO {
                    LocalDate birthDate,
                    String cpf,
                    String phone,
-                   String email,
-                   String password) {
+                   String email) {
 
         this.id = id;
         this.firstName = firstName;
@@ -55,7 +49,6 @@ public class UserDTO {
         this.cpf = cpf;
         this.phone = phone;
         this.email = email;
-        this.password = password;
     }
 
     public UserDTO(User entity) {
@@ -66,7 +59,6 @@ public class UserDTO {
         cpf = entity.getCpf();
         phone = entity.getPhone();
         email = entity.getEmail();
-        password = entity.getPassword();
         entity.getRoles().forEach(role -> this.roles.add(new RoleDTO(role)));
     }
 
@@ -96,10 +88,6 @@ public class UserDTO {
 
     public String getEmail() {
         return email;
-    }
-
-    public String getPassword() {
-        return password;
     }
 
     public Set<RoleDTO> getRoles() {

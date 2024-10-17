@@ -1,8 +1,6 @@
 package com.example.matheusvsdev.ecommerce_backend.service;
 
-import com.example.matheusvsdev.ecommerce_backend.dto.RoleDTO;
-import com.example.matheusvsdev.ecommerce_backend.dto.UserDTO;
-import com.example.matheusvsdev.ecommerce_backend.dto.UserResponseDTO;
+import com.example.matheusvsdev.ecommerce_backend.dto.*;
 import com.example.matheusvsdev.ecommerce_backend.entities.Role;
 import com.example.matheusvsdev.ecommerce_backend.entities.User;
 import com.example.matheusvsdev.ecommerce_backend.projection.UserDetailsProjection;
@@ -42,7 +40,7 @@ public class UserService implements UserDetailsService {
     private EmailService emailService;
 
     @Transactional
-    public UserResponseDTO createUser(UserDTO userDTO) {
+    public UserDTO createUser(InsertUserDTO userDTO) {
         User user = new User();
         assigningDtoToEntities(user, userDTO);
 
@@ -54,13 +52,13 @@ public class UserService implements UserDetailsService {
 
         user = userRepository.save(user);
 
-        return new UserResponseDTO(user);
+        return new UserDTO(user);
     }
 
     @Transactional(readOnly = true)
     public Page<UserDTO> findAllPaged(Pageable pageable) {
         Page<User> list = userRepository.findAll(pageable);
-        return list.map(x -> new UserDTO(x));
+        return list.map(UserDTO::new);
     }
 
     @Transactional(readOnly = true)
@@ -75,6 +73,7 @@ public class UserService implements UserDetailsService {
     public UserDTO update(Long id, UserDTO dto) {
 
         try {
+            emailAndCpfValidation(dto);
             User entity = userRepository.getReferenceById(id);
             assigningDtoToEntities(entity, dto);
             entity = userRepository.save(entity);

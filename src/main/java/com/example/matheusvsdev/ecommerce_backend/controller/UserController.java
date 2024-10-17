@@ -1,9 +1,9 @@
 package com.example.matheusvsdev.ecommerce_backend.controller;
 
 import com.example.matheusvsdev.ecommerce_backend.docs.UserControllerDocs;
+import com.example.matheusvsdev.ecommerce_backend.dto.InsertUserDTO;
 import com.example.matheusvsdev.ecommerce_backend.dto.UpdateUserDTO;
 import com.example.matheusvsdev.ecommerce_backend.dto.UserDTO;
-import com.example.matheusvsdev.ecommerce_backend.dto.UserResponseDTO;
 import com.example.matheusvsdev.ecommerce_backend.service.UpdateOwnUserService;
 import com.example.matheusvsdev.ecommerce_backend.service.UserService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -31,12 +31,12 @@ public class UserController implements UserControllerDocs {
     private UpdateOwnUserService updateOwnUserService;
 
     @PostMapping
-    public ResponseEntity<UserResponseDTO> createUser(@Valid @RequestBody UserDTO userDTO) {
-        UserResponseDTO user = userService.createUser(userDTO);
+    public ResponseEntity<UserDTO> createUser(@Valid @RequestBody InsertUserDTO dto) {
+        UserDTO user = userService.createUser(dto);
         URI uri = ServletUriComponentsBuilder
                 .fromCurrentRequest()
                 .path("/{id}")
-                .buildAndExpand(userDTO.getId())
+                .buildAndExpand(user.getId())
                 .toUri();
 
         return ResponseEntity.created(uri).body(user);

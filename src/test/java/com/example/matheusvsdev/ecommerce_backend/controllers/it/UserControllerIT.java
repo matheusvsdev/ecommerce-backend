@@ -2,12 +2,14 @@ package com.example.matheusvsdev.ecommerce_backend.controllers.it;
 
 import com.example.matheusvsdev.ecommerce_backend.TokenUtil;
 import com.example.matheusvsdev.ecommerce_backend.controller.UserController;
+import com.example.matheusvsdev.ecommerce_backend.dto.InsertUserDTO;
 import com.example.matheusvsdev.ecommerce_backend.dto.UserDTO;
 import com.example.matheusvsdev.ecommerce_backend.entities.User;
 import com.example.matheusvsdev.ecommerce_backend.service.EmailService;
 import com.example.matheusvsdev.ecommerce_backend.service.StripePaymentService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.hamcrest.Matchers;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 
+import static org.junit.Assert.assertNotNull;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -47,33 +50,20 @@ public class UserControllerIT {
     private EmailService emailService;
 
     private String adminToken, clientToken;
-    private UserDTO userDTO;
+    private InsertUserDTO insertUserDTO;
 
     @BeforeEach
     void setUp() throws Exception {
-        String adminUsername = "mvdigitalmarketing22@gmail.com";
-        String adminPassword = "123456";
-        String clientUsername = "matheusvaldevino1997@outlook.com";
-        String clientPassword = "123456";
+        // Gerando os tokens
+        generateTokens();
 
-        adminToken = tokenUtil.obtainAccessToken(mockMvc, adminUsername, adminPassword);
-        clientToken = tokenUtil.obtainAccessToken(mockMvc, clientUsername, clientPassword);
-
-        // Inicializando um UserDTO para os testes
-        User user = new User();
-        user.setFirstName("John");
-        user.setLastName("Doe");
-        user.setEmail("johndoe@gmail.com");
-        user.setCpf("12345678901");
-        user.setPhone("88888888888");
-        user.setBirthDate(LocalDate.parse("2000-01-01"));
-        user.setPassword("Abc123456");
-        userDTO = new UserDTO(user);
+        // Inicializando o DTO de usuário
+        initializeInsertUserDTO();
     }
 
     @Test
     public void insertShouldReturnCreatedWhenAdminLogged() throws Exception {
-        String jsonBody = objectMapper.writeValueAsString(userDTO);
+        String jsonBody = objectMapper.writeValueAsString(insertUserDTO);
 
         ResultActions result = mockMvc.perform(post("/users")
                 .header("Authorization", "Bearer " + adminToken)
@@ -94,14 +84,16 @@ public class UserControllerIT {
 
     @Test
     public void insertShouldReturnUnprocessableEntityWhenRequiredFieldsAreMissing() throws Exception {
-        User user = new User();
-        user.setFirstName("");
-        user.setLastName("");
-        user.setCpf("");
-        user.setEmail("");
-        user.setPassword("");
-
-        UserDTO dto = new UserDTO(user);
+        InsertUserDTO dto = new InsertUserDTO(
+                null,
+                "",
+                "",  // Sobrenome vazio
+                LocalDate.parse("2000-01-01"),
+                "",
+                "",
+                "",
+                ""
+        );
 
         String jsonBody = objectMapper.writeValueAsString(dto);
 
@@ -110,9 +102,6 @@ public class UserControllerIT {
                 .content(jsonBody)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON));
-
-        String responseBody = result.andReturn().getResponse().getContentAsString();
-        System.out.println("Response Body: " + responseBody);
 
         result.andExpect(status().isUnprocessableEntity());
         result.andExpect(jsonPath("$.errors[?(@.fieldName == 'firstName')].message").value(Matchers.hasItem("Campo requerido")));
@@ -124,15 +113,17 @@ public class UserControllerIT {
 
     @Test
     public void insertShouldReturnUnprocessableEntityWhenFirstNameOrLastNameIsLessThanThreeCharacters() throws Exception {
-        User user = new User();
-        user.setFirstName("as");
-        user.setLastName("ab");
-        user.setCpf("11111111111");
-        user.setEmail("valence@gmail.com");
-        user.setPassword("Abc123456");
-        user.setBirthDate(LocalDate.parse("2000-01-01"));
+        InsertUserDTO dto = new InsertUserDTO(
+                null,
+                "as",
+                "ab",
+                LocalDate.parse("2000-01-01"),
+                "11111111111",
+                "88888888888",
+                "valence@gmail.com",
+                "Abc123456"
 
-        UserDTO dto = new UserDTO(user);
+        );
 
         String jsonBody = objectMapper.writeValueAsString(dto);
 
@@ -148,15 +139,16 @@ public class UserControllerIT {
 
     @Test
     public void insertShouldReturnUnprocessableEntityWhenNameDoesNotHaveOnlyLetters() throws Exception {
-        User user = new User();
-        user.setFirstName("Jo4o");
-        user.setLastName("Si1v4");
-        user.setCpf("11111111111");
-        user.setEmail("valence@gmail.com");
-        user.setPassword("Abc123456");
-        user.setBirthDate(LocalDate.parse("2000-01-01"));
-
-        UserDTO dto = new UserDTO(user);
+        InsertUserDTO dto = new InsertUserDTO(
+                null,
+                "Jo4o",
+                "Si1v4",
+                LocalDate.parse("2000-01-01"),
+                "11111111111",
+                "88888888888",
+                "valence@gmail.com",
+                "Abc123456"
+        );
 
         String jsonBody = objectMapper.writeValueAsString(dto);
 
@@ -167,19 +159,22 @@ public class UserControllerIT {
                 .accept(MediaType.APPLICATION_JSON));
 
         result.andExpect(status().isUnprocessableEntity());
+        result.andExpect(jsonPath("$.errors[?(@.fieldName == 'firstName')].message").value("O nome deve conter apenas letras"));
+        result.andExpect(jsonPath("$.errors[?(@.fieldName == 'lastName')].message").value("O nome deve conter apenas letras"));
     }
 
     @Test
     public void insertShouldReturnUnprocessableEntityWhenDataIsNull() throws Exception {
-        User user = new User();
-        user.setFirstName("Maria");
-        user.setLastName("Cecília");
-        user.setCpf("12345678901");
-        user.setEmail("cecilia@gmail.com");
-        user.setPassword("Abc123456");
-        user.setBirthDate(null);
-
-        UserDTO dto = new UserDTO(user);
+        InsertUserDTO dto = new InsertUserDTO(
+                null,
+                "Maria",
+                "Cecília",
+                null,
+                "12345678901",
+                "88888888888",
+                "cecilia@gmail.com",
+                "Abc123456"
+        );
 
         String jsonBody = objectMapper.writeValueAsString(dto);
 
@@ -195,10 +190,16 @@ public class UserControllerIT {
 
     @Test
     public void insertShouldReturnUnprocessableEntityWhenEmailInvalid() throws Exception {
-        User user = new User();
-        user.setEmail("invalid-email"); // Email inválido
-
-        UserDTO dto = new UserDTO(user);
+        InsertUserDTO dto = new InsertUserDTO(
+                null,
+                "Maria",
+                "Silva",
+                LocalDate.parse("2000-01-01"),
+                "11111111111",
+                "88888888888",
+                "invalid-email",
+                "Abc123456"
+        );
 
         String jsonBody = objectMapper.writeValueAsString(dto);
 
@@ -209,19 +210,21 @@ public class UserControllerIT {
                 .accept(MediaType.APPLICATION_JSON));
 
         result.andExpect(status().isUnprocessableEntity());
+        result.andExpect(jsonPath("$.errors[?(@.fieldName == 'email')].message").value("Email deve ter um domínio válido"));
     }
 
     @Test
     public void insertShouldReturnUnprocessableEntityWhenBirthDateIsInTheFuture() throws Exception {
-        User user = new User();
-        user.setFirstName("Marcos");
-        user.setLastName("Valence");
-        user.setCpf("11111111111");
-        user.setEmail("valence@gmail.com");
-        user.setPassword("Abc123456");
-        user.setBirthDate(LocalDate.parse("2030-01-01")); // Data no futuro
-
-        UserDTO dto = new UserDTO(user);
+        InsertUserDTO dto = new InsertUserDTO(
+                null,
+                "Marcos",
+                "Valence",
+                LocalDate.parse("2030-01-01"),
+                "11111111111",
+                "88888888888",
+                "valence@gmail.com",
+                "Abc123456"
+        );
 
         String jsonBody = objectMapper.writeValueAsString(dto);
 
@@ -237,16 +240,16 @@ public class UserControllerIT {
 
     @Test
     public void insertShouldReturnUnprocessableEntityWhenPasswordDoesNotContainEightCharactersUppercaseLowercaseAndNumber() throws Exception {
-        User user = new User();
-        user.setFirstName("Maria");
-        user.setLastName("Miranda");
-        user.setCpf("11111111111");
-        user.setEmail("valence@gmail.com");
-        user.setPassword("Abc123456");
-        user.setBirthDate(LocalDate.parse("2000-01-01"));
-        user.setPassword("password"); // Senha inválida
-
-        UserDTO dto = new UserDTO(user);
+        InsertUserDTO dto = new InsertUserDTO(
+                null,
+                "Maria",
+                "Miranda",
+                LocalDate.parse("2000-01-01"),
+                "11111111111",
+                "88888888888",
+                "valence@gmail.com",
+                "password"  // Senha inválida (sem número e sem letra maiúscula)
+        );
 
         String jsonBody = objectMapper.writeValueAsString(dto);
 
@@ -258,5 +261,32 @@ public class UserControllerIT {
 
         result.andExpect(status().isUnprocessableEntity());
         result.andExpect(jsonPath("$.errors[0].message").value("Senha deve ter pelo menos 8 caracteres, incluindo uma letra maiúscula, uma letra minúscula e um número"));
+    }
+
+    private void generateTokens() throws Exception {
+        String adminUsername = "test1@gmail.com";
+        String adminPassword = "123456";
+        String clientUsername = "test2@outlook.com";
+        String clientPassword = "123456";
+
+        adminToken = tokenUtil.obtainAccessToken(mockMvc, adminUsername, adminPassword);
+        clientToken = tokenUtil.obtainAccessToken(mockMvc, clientUsername, clientPassword);
+
+        // Validando se os tokens foram gerados corretamente
+        Assertions.assertNotNull("Admin token não pode ser nulo", adminToken);
+        Assertions.assertNotNull("Client token não pode ser nulo", clientToken);
+    }
+
+    private void initializeInsertUserDTO() {
+        insertUserDTO = new InsertUserDTO(
+                null,
+                "John",
+                "Doe",
+                LocalDate.parse("2000-01-01"),
+                "12345678901",
+                "88888888888",
+                "johndoe@gmail.com",
+                "Abc123456"
+        );
     }
 }

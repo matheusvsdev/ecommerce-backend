@@ -1,8 +1,8 @@
 package com.example.matheusvsdev.ecommerce_backend.docs;
 
+import com.example.matheusvsdev.ecommerce_backend.dto.InsertUserDTO;
 import com.example.matheusvsdev.ecommerce_backend.dto.UpdateUserDTO;
 import com.example.matheusvsdev.ecommerce_backend.dto.UserDTO;
-import com.example.matheusvsdev.ecommerce_backend.dto.UserResponseDTO;
 import com.example.matheusvsdev.ecommerce_backend.service.exceptions.ArgumentAlreadyExistsException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -72,7 +72,7 @@ public interface UserControllerDocs {
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = MethodArgumentNotValidException.class))
             ),
     })
-    ResponseEntity<UserResponseDTO> createUser(@Valid @org.springframework.web.bind.annotation.RequestBody UserDTO client);
+    ResponseEntity<UserDTO> createUser(@Valid @org.springframework.web.bind.annotation.RequestBody InsertUserDTO client);
 
 
     @Operation(summary = "Lista todos os usuários", description = "Retorna uma lista paginada de usuários.")
@@ -139,14 +139,14 @@ public interface UserControllerDocs {
 
     @Operation(summary = "Atualiza um usuário por ID", description = "Atualiza as informações do usuário especificado pelo ID.",
             requestBody = @RequestBody(description = "Detalhes do usuário a serem atualizados", required = true,
-                    content = @Content(schema = @Schema(implementation = UserResponseDTO.class))))
+                    content = @Content(schema = @Schema(implementation = UserDTO.class))))
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
                     description = "Usuário atualizado com sucesso",
                     content = @Content(
                             mediaType = "application/json",
-                            schema = @Schema(implementation = UserResponseDTO.class),
+                            schema = @Schema(implementation = UserDTO.class),
                             examples = @ExampleObject(
                                     name = "Exemplo de atualização de dados do Usuário",
                                     value = """
@@ -186,12 +186,12 @@ public interface UserControllerDocs {
 
     @Operation(summary = "Atualiza o próprio perfil", description = "Permite que o usuário atualize seu próprio perfil.",
             requestBody = @RequestBody(description = "Detalhes do usuário a serem atualizados", required = true,
-                    content = @Content(schema = @Schema(implementation = UpdateUserDTO.class))))
+                    content = @Content(schema = @Schema(implementation = InsertUserDTO.class))))
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Perfil atualizado com sucesso",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserDTO.class))),
     })
-    ResponseEntity<UserDTO> updateSelf(@Valid @org.springframework.web.bind.annotation.RequestBody UpdateUserDTO dto);
+    ResponseEntity<UserDTO> updateSelf(@Valid @RequestBody UpdateUserDTO dto);
 
     @Operation(summary = "Deleta um usuário por ID", description = "Permite a exclusão de um usuário especificado pelo ID.")
     @ApiResponses(value = {

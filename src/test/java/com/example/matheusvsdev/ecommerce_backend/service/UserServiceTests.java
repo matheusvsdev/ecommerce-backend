@@ -1,8 +1,7 @@
 package com.example.matheusvsdev.ecommerce_backend.service;
 
-import com.example.matheusvsdev.ecommerce_backend.dto.RoleDTO;
+import com.example.matheusvsdev.ecommerce_backend.dto.InsertUserDTO;
 import com.example.matheusvsdev.ecommerce_backend.dto.UserDTO;
-import com.example.matheusvsdev.ecommerce_backend.dto.UserResponseDTO;
 import com.example.matheusvsdev.ecommerce_backend.entities.Role;
 import com.example.matheusvsdev.ecommerce_backend.entities.User;
 import com.example.matheusvsdev.ecommerce_backend.projection.UserDetailsProjection;
@@ -171,50 +170,71 @@ public class UserServiceTests {
 
     @Test
     public void createUserShouldSaveNewUser() {
-        User newUser = new User();
-        newUser.setFirstName("Maria");
-        newUser.setLastName("Silva");
-        newUser.setCpf("11122233344");
-        newUser.setPhone("88888888888");
-        newUser.setBirthDate(LocalDate.parse("1985-01-01"));
-        newUser.setEmail("maria@gmail.com");
-        newUser.setPassword("Abc123456");
 
-        Mockito.when(userRepository.existsByCpf(newUser.getCpf())).thenReturn(false);
-        Mockito.when(userRepository.existsByEmail(newUser.getEmail())).thenReturn(false);
-        Mockito.when(userRepository.save(Mockito.any(User.class))).thenReturn(UserFactory.createClientUser());
+        InsertUserDTO insertUserDTO = new InsertUserDTO(
+                null,
+                "Maria",
+                "Silva",
+                LocalDate.parse("1985-01-01"),
+                "11122233344",
+                "99882233440",
+                "maria@gmail.com",
+                "Abc123456"
+        );
 
-        UserResponseDTO result = userService.createUser(new UserDTO());
+        Mockito.when(userRepository.existsByCpf(insertUserDTO.getCpf())).thenReturn(false);
+        Mockito.when(userRepository.existsByEmail(insertUserDTO.getEmail())).thenReturn(false);
+
+        // Simulando o retorno de User da fábrica sem a senha
+        User savedUser = UserFactory.createClientUser();
+        Mockito.when(userRepository.save(Mockito.any(User.class))).thenReturn(savedUser);
+
+
+        UserDTO result = userService.createUser(insertUserDTO);
 
         assertNotNull(result);
-        assertEquals(newUser.getEmail(), result.getEmail());
+        assertEquals(insertUserDTO.getEmail(), result.getEmail());
     }
 
     @Test
     public void createUserShouldThrowExceptionWhenCpfAlreadyExists() {
-        User newUser = new User();
-        newUser.setCpf("12345678901");
 
-        UserDTO result = new UserDTO(newUser);
+        InsertUserDTO newUser = new InsertUserDTO(
+                null,
+                "Maria",
+                "Silva",
+                LocalDate.parse("1985-01-01"),
+                "11122233344",
+                "99882233440",
+                "maria@gmail.com",
+                "Abc123456"
+        );
 
         Mockito.when(userRepository.existsByCpf(newUser.getCpf())).thenReturn(true);
 
         assertThrows(ArgumentAlreadyExistsException.class, () -> {
-            userService.createUser(result);
+            userService.createUser(newUser);
         });
     }
 
     @Test
     public void createUserShouldThrowExceptionWhenEmailAlreadyExists() {
-        User newUser = new User();
-        newUser.setEmail("existinguser@gmail.com");
 
-        UserDTO result = new UserDTO(newUser);
+        InsertUserDTO newUser = new InsertUserDTO(
+                null,
+                "Maria",
+                "Silva",
+                LocalDate.parse("1985-01-01"),
+                "11122233344",
+                "99882233440",
+                "maria@gmail.com",
+                "Abc123456"
+        );
 
         Mockito.when(userRepository.existsByEmail(newUser.getEmail())).thenReturn(true);
 
         assertThrows(ArgumentAlreadyExistsException.class, () -> {
-            userService.createUser(result);
+            userService.createUser(newUser);
         });
     }
 

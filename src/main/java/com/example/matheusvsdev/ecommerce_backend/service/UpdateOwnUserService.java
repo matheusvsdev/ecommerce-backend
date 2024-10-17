@@ -1,5 +1,6 @@
 package com.example.matheusvsdev.ecommerce_backend.service;
 
+import com.example.matheusvsdev.ecommerce_backend.dto.InsertUserDTO;
 import com.example.matheusvsdev.ecommerce_backend.dto.UpdateUserDTO;
 import com.example.matheusvsdev.ecommerce_backend.dto.UserDTO;
 import com.example.matheusvsdev.ecommerce_backend.entities.User;
