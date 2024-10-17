@@ -7,12 +7,15 @@ import com.example.matheusvsdev.ecommerce_backend.service.exceptions.IllegalArgu
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import java.time.Instant;
+import java.util.HashMap;
+import java.util.Map;
 
 @ControllerAdvice
 public class ControllerExceptions {
@@ -68,5 +71,13 @@ public class ControllerExceptions {
         CustomError error = new CustomError(Instant.now(), status.value(), e.getMessage(), request.getRequestURI());
 
         return ResponseEntity.status(status).body(error);
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<Object> handleInvalidJson(HttpMessageNotReadableException ex) {
+        String errorMessage = "O corpo da requisição contém um JSON malformado. Verifique a sintaxe.";
+        Map<String, String> error = new HashMap<>();
+        error.put("error", errorMessage);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 }
