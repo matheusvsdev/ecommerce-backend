@@ -54,11 +54,12 @@ public class ProductController implements ProductControllerDocs {
     }
 
     @GetMapping("/search")
-    public Page<ProductProjection> searchProducts(
+    public ResponseEntity<Page<ProductProjection>> searchProducts(
             @RequestParam(required = false) List<Long> categoryIds,
             @RequestParam(required = false) String name,
             Pageable pageable) {
-        return productService.searchProducts(categoryIds, name, pageable);
+        Page<ProductProjection> search = productService.searchProducts(categoryIds, name, pageable);
+        return ResponseEntity.ok().body(search);
     }
 
     @PreAuthorize(value = "hasRole('ROLE_ADMIN')")

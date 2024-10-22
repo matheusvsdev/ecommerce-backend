@@ -52,17 +52,17 @@ INSERT INTO tb_product (name, description, img, price, available) VALUES ('Halte
 INSERT INTO tb_product (name, description, img, price, available) VALUES ('Tapete de Yoga Antiderrapante', 'Tapete de yoga emborrachado para práticas seguras.', 'https://imageurl.com/tapeteyoga', 79.90, true);
 INSERT INTO tb_product (name, description, img, price, available) VALUES ('Smartwatch Garmin Forerunner', 'Relógio esportivo com GPS integrado para corrida.', 'https://imageurl.com/garminforerunner', 1199.90, true);
 
-INSERT INTO tb_inventory (product_id, quantity, update_time, output_quantity, available) VALUES (1, 30, CURRENT_TIMESTAMP, 0, true);
+INSERT INTO tb_inventory (product_id, quantity, update_time, output_quantity, available) VALUES (1, 29, CURRENT_TIMESTAMP, 0, true);
 INSERT INTO tb_inventory (product_id, quantity, update_time, output_quantity, available) VALUES (2, 30, CURRENT_TIMESTAMP, 0, true);
 INSERT INTO tb_inventory (product_id, quantity, update_time, output_quantity, available) VALUES (3, 30, CURRENT_TIMESTAMP, 0, true);
 INSERT INTO tb_inventory (product_id, quantity, update_time, output_quantity, available) VALUES (4, 30, CURRENT_TIMESTAMP, 0, true);
 INSERT INTO tb_inventory (product_id, quantity, update_time, output_quantity, available) VALUES (5, 30, CURRENT_TIMESTAMP, 0, true);
 INSERT INTO tb_inventory (product_id, quantity, update_time, output_quantity, available) VALUES (6, 30, CURRENT_TIMESTAMP, 0, true);
-INSERT INTO tb_inventory (product_id, quantity, update_time, output_quantity, available) VALUES (7, 30, CURRENT_TIMESTAMP, 0, true);
+INSERT INTO tb_inventory (product_id, quantity, update_time, output_quantity, available) VALUES (7, 29, CURRENT_TIMESTAMP, 0, true);
 INSERT INTO tb_inventory (product_id, quantity, update_time, output_quantity, available) VALUES (8, 30, CURRENT_TIMESTAMP, 0, true);
 INSERT INTO tb_inventory (product_id, quantity, update_time, output_quantity, available) VALUES (9, 30, CURRENT_TIMESTAMP, 0, true);
 INSERT INTO tb_inventory (product_id, quantity, update_time, output_quantity, available) VALUES (10, 30, CURRENT_TIMESTAMP, 0, true);
-INSERT INTO tb_inventory (product_id, quantity, update_time, output_quantity, available) VALUES (11, 30, CURRENT_TIMESTAMP, 0, true);
+INSERT INTO tb_inventory (product_id, quantity, update_time, output_quantity, available) VALUES (11, 29, CURRENT_TIMESTAMP, 0, true);
 INSERT INTO tb_inventory (product_id, quantity, update_time, output_quantity, available) VALUES (12, 30, CURRENT_TIMESTAMP, 0, true);
 INSERT INTO tb_inventory (product_id, quantity, update_time, output_quantity, available) VALUES (13, 30, CURRENT_TIMESTAMP, 0, true);
 INSERT INTO tb_inventory (product_id, quantity, update_time, output_quantity, available) VALUES (14, 30, CURRENT_TIMESTAMP, 0, true);
@@ -79,9 +79,9 @@ INSERT INTO tb_inventory (product_id, quantity, update_time, output_quantity, av
 INSERT INTO tb_inventory (product_id, quantity, update_time, output_quantity, available) VALUES (25, 30, CURRENT_TIMESTAMP, 0, true);
 INSERT INTO tb_inventory (product_id, quantity, update_time, output_quantity, available) VALUES (26, 30, CURRENT_TIMESTAMP, 0, true);
 INSERT INTO tb_inventory (product_id, quantity, update_time, output_quantity, available) VALUES (27, 30, CURRENT_TIMESTAMP, 0, true);
-INSERT INTO tb_inventory (product_id, quantity, update_time, output_quantity, available) VALUES (28, 30, CURRENT_TIMESTAMP, 0, true);
+INSERT INTO tb_inventory (product_id, quantity, update_time, output_quantity, available) VALUES (28, 60, CURRENT_TIMESTAMP, 0, true);
 INSERT INTO tb_inventory (product_id, quantity, update_time, output_quantity, available) VALUES (29, 30, CURRENT_TIMESTAMP, 0, true);
-INSERT INTO tb_inventory (product_id, quantity, update_time, output_quantity, available) VALUES (30, 30, CURRENT_TIMESTAMP, 0, true);
+INSERT INTO tb_inventory (product_id, quantity, update_time, output_quantity, available) VALUES (30, 29, CURRENT_TIMESTAMP, 0, true);
 
 INSERT INTO tb_product_category (product_id, category_id) VALUES (1, 1);
 INSERT INTO tb_product_category (product_id, category_id) VALUES (2, 1);
@@ -136,4 +136,11 @@ INSERT INTO tb_order_item (price, quantity, order_id, product_id) VALUES (8499.9
 INSERT INTO tb_order_item (price, quantity, order_id, product_id) VALUES (289.9, 1, 2, 1);
 INSERT INTO tb_order_item (price, quantity, order_id, product_id) VALUES (199.9, 1, 3, 7);
 INSERT INTO tb_order_item (price, quantity, order_id, product_id) VALUES (1199.9, 1, 4, 30);
+
+INSERT INTO tb_inventory_movement (quantity, remaining_stock, moment, product_id, movement_type) VALUES (1, 29, '2024-02-12T15:32:27', 28, 'SAIDA');
+INSERT INTO tb_inventory_movement (quantity, remaining_stock, moment, product_id, movement_type) VALUES (1, 29, '2024-02-12T15:32:27', 11, 'SAIDA');
+INSERT INTO tb_inventory_movement (quantity, remaining_stock, moment, product_id, movement_type) VALUES (1, 29, '2024-02-27T19:02:11', 1, 'SAIDA');
+INSERT INTO tb_inventory_movement (quantity, remaining_stock, moment, product_id, movement_type) VALUES (1, 29, '2024-02-03T09:01:38', 7, 'SAIDA');
+INSERT INTO tb_inventory_movement (quantity, remaining_stock, moment, product_id, movement_type) VALUES (1, 29, '2024-07-23T10:12:47', 30, 'SAIDA');
+INSERT INTO tb_inventory_movement (quantity, remaining_stock, moment, product_id, movement_type) VALUES (31, 60, '2024-07-25T17:31:03', 28, 'ENTRADA');
 

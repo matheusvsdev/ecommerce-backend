@@ -1,5 +1,6 @@
 package com.example.matheusvsdev.ecommerce_backend.controller;
 
+import com.example.matheusvsdev.ecommerce_backend.docs.InventoryControllerDocs;
 import com.example.matheusvsdev.ecommerce_backend.dto.InventoryDTO;
 import com.example.matheusvsdev.ecommerce_backend.dto.InventoryMovementDTO;
 import com.example.matheusvsdev.ecommerce_backend.service.InventoryService;
@@ -14,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping(value = "/inventory")
 @SecurityRequirement(name = "bearerAuth")
-public class InventoryController {
+public class InventoryController implements InventoryControllerDocs {
 
     @Autowired
     private InventoryService inventoryService;

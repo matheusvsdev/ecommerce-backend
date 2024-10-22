@@ -11,14 +11,11 @@ import com.example.matheusvsdev.ecommerce_backend.repository.CategoryRepository;
 import com.example.matheusvsdev.ecommerce_backend.repository.InventoryRepository;
 import com.example.matheusvsdev.ecommerce_backend.repository.ProductRepository;
 import com.example.matheusvsdev.ecommerce_backend.service.exceptions.*;
-import com.example.matheusvsdev.ecommerce_backend.service.exceptions.IllegalArgumentException;
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -77,6 +74,9 @@ public class ProductService {
         try {
             Product entity = productRepository.getReferenceById(id);
             assigningDtoToEntities(entity, dto);
+
+            productNameValidation(dto);
+
             entity = productRepository.save(entity);
 
             return new ProductDTO(entity);

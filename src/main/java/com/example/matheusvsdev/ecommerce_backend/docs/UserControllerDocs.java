@@ -128,7 +128,90 @@ public interface UserControllerDocs {
     @Operation(summary = "Lista todos os usuários", description = "Retorna uma lista paginada de usuários.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Lista de usuários retornada com sucesso",
-                    content = @Content(mediaType = "application/json")),
+                    content = @Content(
+                            schema = @Schema(implementation = UserDTO.class),
+                            examples = @ExampleObject(
+                                    name = "Exemplo de Busca Paginada de Usuário",
+                                    value = """
+                                    {
+                                         "content": [
+                                             {
+                                                 "id": 1,
+                                                 "firstName": "Matheus",
+                                                 "lastName": "Viccari",
+                                                 "birthDate": "1997-03-15",
+                                                 "cpf": "721.838.222.11",
+                                                 "phone": "82991668033",
+                                                 "email": "test1@gmail.com",
+                                                 "roles": [
+                                                     {
+                                                         "id": 1,
+                                                         "authority": "ROLE_CLIENT"
+                                                     },
+                                                     {
+                                                         "id": 2,
+                                                         "authority": "ROLE_ADMIN"
+                                                     }
+                                                 ]
+                                             },
+                                             {
+                                                 "id": 2,
+                                                 "firstName": "José",
+                                                 "lastName": "Vilar",
+                                                 "birthDate": "1985-07-02",
+                                                 "cpf": "101.479.321.09",
+                                                 "phone": "82991366013",
+                                                 "email": "test2@outlook.com",
+                                                 "roles": [
+                                                     {
+                                                         "id": 1,
+                                                         "authority": "ROLE_CLIENT"
+                                                     }
+                                                 ]
+                                             },
+                                             {
+                                                 "id": 3,
+                                                 "firstName": "Aline",
+                                                 "lastName": "Pinosa",
+                                                 "birthDate": "1998-05-10",
+                                                 "cpf": "231.170.872.33",
+                                                 "phone": "82991668033",
+                                                 "email": "test3@gmail.com",
+                                                 "roles": [
+                                                     {
+                                                         "id": 2,
+                                                         "authority": "ROLE_ADMIN"
+                                                     }
+                                                 ]
+                                             }
+                                         ],
+                                         "pageable": {
+                                             "pageNumber": 0,
+                                             "pageSize": 20,
+                                             "sort": {
+                                                 "empty": true,
+                                                 "unsorted": true,
+                                                 "sorted": false
+                                             },
+                                             "offset": 0,
+                                             "unpaged": false,
+                                             "paged": true
+                                         },
+                                         "last": true,
+                                         "totalPages": 1,
+                                         "totalElements": 3,
+                                         "first": true,
+                                         "size": 20,
+                                         "number": 0,
+                                         "sort": {
+                                             "empty": true,
+                                             "unsorted": true,
+                                             "sorted": false
+                                         },
+                                         "numberOfElements": 3,
+                                         "empty": false
+                                    }
+                                    """))),
             @ApiResponse(responseCode = "401", description = "Usuário não autenticado",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = ErrorResponse.class),
@@ -156,6 +239,9 @@ public interface UserControllerDocs {
                         }
                         """)))
     })
+    @Parameter(description = "Número da página (0...N)", name = "page", example = "0", required = false)
+    @Parameter(description = "Quantidade de elementos por página", name = "size", example = "20", required = false)
+    @Parameter(description = "Critério de ordenação", name = "sort", example = "asc", required = false)
     ResponseEntity<Page<UserDTO>> findAll(Pageable pageable);
 
     @Operation(summary = "Busca um usuário por ID", description = "Retorna os detalhes de um usuário específico pelo ID.")
@@ -315,7 +401,7 @@ public interface UserControllerDocs {
                                     value = """
                             {
                                 "timestamp": "2024-10-11T03:40:44.363563073Z",
-                                "status": "404",
+                                "status": 404,
                                 "error": "Usuário não encontrado.",
                                 "path": "/users/1"
                             }
@@ -399,7 +485,7 @@ public interface UserControllerDocs {
 
     @Operation(summary = "Deleta um usuário por ID", description = "Permite a exclusão de um usuário especificado pelo ID.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "Usuário deletado com sucesso."),
+            @ApiResponse(responseCode = "204 No Content", description = "Usuário deletado com sucesso."),
             @ApiResponse(responseCode = "403", description = "Acesso negado",
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = ErrorResponse.class),
